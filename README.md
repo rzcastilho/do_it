@@ -1,4 +1,4 @@
-# DoIt
+# Do It - Elixir Command Line Interface Library
 
 **TODO: Add description**
 

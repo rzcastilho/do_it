@@ -1,18 +1,15 @@
 defmodule DoIt do
-  @moduledoc """
-  Documentation for `DoIt`.
-  """
+  use DoIt.Action
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> DoIt.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  action :hello, "Say hello" do
+    flag :message, :string, alias: :m
   end
+
+  def run(args) do
+    IO.inspect @options
+    parsedOptions = OptionParser.parse(args, @options)
+    IO.inspect parsedOptions
+    true
+  end
+
 end
