@@ -1,6 +1,6 @@
-# Do It - Elixir Command Line Interface Library
+# Do It - Elixir Command Line Interface Framework
 
-**TODO: Add description**
+A framework that helps to develop command line tools with Elixir.
 
 ## Installation
 

@@ -1,0 +1,10 @@
+
+Usage: <%= action %>
+
+<%= description %>
+
+Options:
+
+<%= for {flag, %{description: desc}} <- flags do %>
+  * <%= flag %> - <%= desc %>
+<% end %>
