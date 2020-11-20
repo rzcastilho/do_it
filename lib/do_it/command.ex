@@ -57,7 +57,7 @@ defmodule DoIt.Command do
 
       def help() do
         EEx.eval_file(
-          "lib/do_it/template/help.eex",
+          "#{File.cwd!}/template/help.eex",
           app: Application.get_application(__MODULE__),
           command: @command,
           description: @description,
