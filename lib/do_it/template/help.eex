@@ -1,10 +1,8 @@
 
-Usage: <%= action %>
+Usage: <%= app %> <%= command %>
 
 <%= description %>
 
-Options:
+<%= DoIt.Helper.formated_params_list(params) %>
 
-<%= for {flag, %{description: desc}} <- flags do %>
-  * <%= flag %> - <%= desc %>
-<% end %>
+<%= DoIt.Helper.formated_flags_list(flags) %>

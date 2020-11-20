@@ -1,3 +1,2 @@
 defmodule DoIt do
-
 end

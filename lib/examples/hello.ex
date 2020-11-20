@@ -1,16 +1,18 @@
 defmodule Hello do
   use DoIt.Command,
-    description: "Hello to whom it may concern"
+    description: "Hello command line tool",
+    command: "olleh"
 
-  flag :message, :string, "Message", alias: :m, required: true
-  flag :template, :string, "Message template", alias: :t, default: "Hello <%= message %>!!!"
+  param(:message, "Message", allowed_values: ["World", "Universe"])
 
-  def run([message: message, template: template], _) do
-    EEx.eval_string(template, message: message)
+  flag(:template, :string, "Template", alias: :t, default: "Hello <%= message %>!!!")
+  flag(:"template-file", :string, "Template filename", alias: :f)
+
+  def run([message], [template: template], _) do
+    IO.puts EEx.eval_string(template, message: message)
   end
 
-  def run([message: message], %{template: %{default: template}}) do
-    EEx.eval_string(template, message: message)
+  def run([message], _, %{flags: %{template: %{default: template}}}) do
+    IO.puts EEx.eval_string(template, message: message)
   end
-
 end
