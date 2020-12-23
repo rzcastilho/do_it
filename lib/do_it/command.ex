@@ -1,25 +1,11 @@
 defmodule DoIt.Command do
   @moduledoc false
 
-  defmodule Param do
-    defstruct name: nil,
-              description: nil,
-              regex: nil,
-              allowed_values: nil
-  end
-
-  defmodule Flag do
-    defstruct name: nil,
-              type: nil,
-              description: nil,
-              alias: nil,
-              required: false,
-              default: nil
-  end
+  alias DoIt.{Param, Flag}
 
   defmacro __using__(opts) do
     quote do
-      import unquote(__MODULE__), only: [param: 2, param: 3, flag: 3, flag: 4]
+      import unquote(__MODULE__), only: [param: 3, param: 4, flag: 3, flag: 4]
       @behaviour DoIt.Runner
 
       Module.register_attribute(__MODULE__, :command, accumulate: false, persist: true)
@@ -56,8 +42,7 @@ defmodule DoIt.Command do
       def command(), do: {@command, @description}
 
       def help() do
-        EEx.eval_file(
-          "#{File.cwd!}/template/help.eex",
+        DoIt.Helper.print_help(
           app: Application.get_application(__MODULE__),
           command: @command,
           description: @description,
@@ -66,14 +51,17 @@ defmodule DoIt.Command do
         )
       end
 
-      def do_it(args) do
+      def do_it(args, context) do
         case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
-          {parsed_flags, parsed_params, []} ->
-            run(parsed_params, parsed_flags, %{
-              params: Enum.into(@params, %{}),
-              flags: Enum.into(@flags, %{})
-            })
-
+          {flags, params, []} ->
+            with {:ok, parsed_params} <- Param.parse_input(@params, params),
+                 {:ok, parsed_flags} <- Flag.parse_input(@flags, flags),
+                 {:ok, validated_params} <- Param.validate_input(@params, parsed_params),
+                 {:ok, validated_flags} <- Flag.validate_input(@flags, parsed_flags) do
+              run(validated_params, validated_flags, context)
+            else
+              {:error, _} -> help()
+            end
           _ ->
             help()
         end
@@ -83,17 +71,22 @@ defmodule DoIt.Command do
 
   defmacro flag(name, type, description, opts \\ []) do
     quote do
-      Module.put_attribute(
-        __MODULE__,
-        :flags,
-        {unquote(name),
-         struct(
-           %Flag{name: unquote(name), type: unquote(type), description: unquote(description)},
-           unquote(opts)
-         )}
-      )
+      flag =
+        struct(
+          %Flag{name: unquote(name), type: unquote(type), description: unquote(description)},
+          unquote(opts)
+        )
+        |> Flag.validate_definition()
 
-      Module.put_attribute(__MODULE__, :strict, {unquote(name), unquote(type)})
+      Module.put_attribute(__MODULE__, :flags, flag)
+
+      case List.keyfind(unquote(opts), :keep, 0) do
+        {:keep, true} ->
+          Module.put_attribute(__MODULE__, :strict, {unquote(name), [unquote(type), :keep]})
+
+        _ ->
+          Module.put_attribute(__MODULE__, :strict, {unquote(name), unquote(type)})
+      end
 
       case List.keymember?(unquote(opts), :alias, 0) do
         true ->
@@ -105,17 +98,16 @@ defmodule DoIt.Command do
     end
   end
 
-  defmacro param(name, description, opts \\ []) do
+  defmacro param(name, type, description, opts \\ []) do
     quote do
-      Module.put_attribute(
-        __MODULE__,
-        :params,
-        {unquote(name),
-         struct(
-           %Param{name: unquote(name), description: unquote(description)},
-           unquote(opts)
-         )}
-      )
+      param =
+        struct(
+          %Param{name: unquote(name), type: unquote(type), description: unquote(description)},
+          unquote(opts)
+        )
+        |> Param.validate_definition()
+
+      Module.put_attribute(__MODULE__, :params, param)
     end
   end
 end

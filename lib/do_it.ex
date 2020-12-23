@@ -1,2 +1,0 @@
-defmodule DoIt do
-end

@@ -12,16 +12,23 @@ defmodule DoIt.Entrypoint do
         {module, command} ->
           quote do
             def main([unquote(command) | args]) do
-              apply(String.to_existing_atom("Elixir.#{unquote(module)}"), :do_it, [args])
+              apply(String.to_existing_atom("Elixir.#{unquote(module)}"), :do_it, [args, %{env: System.get_env()}])
             end
           end
       end)
 
     quote do
-      def main(["version"|_]), do: Mix.Project.config
+
+      def main(["version"|_]) do
+        IO.puts Mix.Project.config()[:version]
+      end
+
       unquote(commands)
-      def main(_), do: "Help"
-      def main(), do: "Help"
+
+      def main([]), do: IO.puts "Help"
+      def main(_), do: IO.puts "Help"
+      def main(), do: IO.puts "Help"
+
     end
   end
 

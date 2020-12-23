@@ -1,8 +1,0 @@
-
-Usage: <%= app %> <%= command %>
-
-<%= description %>
-
-<%= DoIt.Helper.formated_params_list(params) %>
-
-<%= DoIt.Helper.formated_flags_list(flags) %>

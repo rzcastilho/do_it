@@ -8,7 +8,14 @@ defmodule DoIt.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      escript: escript()
+      escript: escript(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -22,6 +29,8 @@ defmodule DoIt.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:excoveralls, "~> 0.13", only: :test},
       {:credo, "~> 1.5"}
     ]
   end
@@ -29,5 +38,4 @@ defmodule DoIt.MixProject do
   defp escript do
     [main_module: Main]
   end
-
 end
