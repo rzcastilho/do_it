@@ -8,7 +8,6 @@ defmodule DoIt.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      escript: escript(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -35,7 +34,4 @@ defmodule DoIt.MixProject do
     ]
   end
 
-  defp escript do
-    [main_module: Main]
-  end
 end
