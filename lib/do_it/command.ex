@@ -26,7 +26,13 @@ defmodule DoIt.Command do
           )
       end
 
-      Module.put_attribute(__MODULE__, :description, unquote(opts)[:description])
+      case List.keyfind(unquote(opts), :description, 0) do
+        {:description, description} ->
+          Module.put_attribute(__MODULE__, :description, description)
+
+        _ ->
+          raise(DoIt.CommandDefinitionError, "description is required for command definition")
+      end
 
       Module.register_attribute(__MODULE__, :params, accumulate: true)
       Module.register_attribute(__MODULE__, :flags, accumulate: true)
@@ -42,7 +48,7 @@ defmodule DoIt.Command do
       def command(), do: {@command, @description}
 
       def help() do
-        DoIt.Helper.print_help(
+        DoIt.Output.print_help(
           app: Application.get_application(__MODULE__),
           command: @command,
           description: @description,
@@ -62,6 +68,7 @@ defmodule DoIt.Command do
             else
               {:error, _} -> help()
             end
+
           _ ->
             help()
         end

@@ -23,10 +23,9 @@ defmodule ListUserThing do
   flag(:verbose, :boolean, "Increase output information")
 
   def run(params, flags, context) do
-    IO.inspect params
-    IO.inspect flags
-    IO.inspect context
+    IO.inspect(params)
+    IO.inspect(flags)
+    IO.inspect(context)
     "get #{params[:username]}'s #{params[:thing]} from GitHub"
   end
-
 end
