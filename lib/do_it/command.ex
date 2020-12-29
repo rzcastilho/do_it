@@ -64,7 +64,7 @@ defmodule DoIt.Command do
                  {:ok, parsed_flags} <- Flag.parse_input(@flags, flags),
                  {:ok, validated_params} <- Param.validate_input(@params, parsed_params),
                  {:ok, validated_flags} <- Flag.validate_input(@flags, parsed_flags) do
-              run(validated_params, validated_flags, context)
+              run(Enum.into(validated_params, %{}), Enum.into(validated_flags, %{}), context)
             else
               {:error, _} -> help()
             end
