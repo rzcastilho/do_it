@@ -1,7 +1,7 @@
 defmodule DoIt.Output do
   @moduledoc false
 
-  alias DoIt.{Flag, Param}
+  alias DoIt.{Argument, Option}
 
   def greatest_name(list) do
     list
@@ -10,19 +10,19 @@ defmodule DoIt.Output do
     |> String.length()
   end
 
-  def format_param_name(%Param{name: name}, align),
+  def format_argument_name(%Argument{name: name}, align),
     do: "#{String.pad_trailing(Atom.to_string(name), align)}"
 
-  def format_param_description(%Param{description: description}), do: description
-  def format_param_allowed_values(%Param{allowed_values: nil}), do: ""
+  def format_argument_description(%Argument{description: description}), do: description
+  def format_argument_allowed_values(%Argument{allowed_values: nil}), do: ""
 
-  def format_param_allowed_values(%Param{allowed_values: allowed_values}),
+  def format_argument_allowed_values(%Argument{allowed_values: allowed_values}),
     do: " - [Allowed Values: #{Enum.join(allowed_values, ", ")}]"
 
-  def format_flag_alias(%Flag{alias: nil}), do: "   "
-  def format_flag_alias(%Flag{alias: alias}), do: "-#{Atom.to_string(alias)},"
+  def format_option_alias(%Option{alias: nil}), do: "   "
+  def format_option_alias(%Option{alias: alias}), do: "-#{Atom.to_string(alias)},"
 
-  def format_flag_name(%Flag{name: name}, align),
+  def format_option_name(%Option{name: name}, align),
     do: "--#{
       name
       |> Atom.to_string()
@@ -30,12 +30,12 @@ defmodule DoIt.Output do
       |> String.pad_trailing(align)
     }"
 
-  def format_flag_description(%Flag{description: description}), do: description
-  def format_flag_default(%Flag{default: nil}), do: ""
-  def format_flag_default(%Flag{default: default}), do: " - [Default: #{default}]"
-  def format_flag_allowed_values(%Flag{allowed_values: nil}), do: ""
+  def format_option_description(%Option{description: description}), do: description
+  def format_option_default(%Option{default: nil}), do: ""
+  def format_option_default(%Option{default: default}), do: " - [Default: #{default}]"
+  def format_option_allowed_values(%Option{allowed_values: nil}), do: ""
 
-  def format_flag_allowed_values(%Flag{allowed_values: allowed_values}),
+  def format_option_allowed_values(%Option{allowed_values: allowed_values}),
     do: " - [Allowed Values: #{Enum.join(allowed_values, ", ")}]"
 
   def print_help(
@@ -65,16 +65,16 @@ defmodule DoIt.Output do
         app: app,
         command: command,
         description: description,
-        params: params,
-        flags: flags
+        arguments: arguments,
+        options: options
       ) do
     IO.puts("")
 
     IO.puts(
       "Usage: #{app} #{command}" <>
-        "#{if Enum.empty?(flags), do: " ", else: " [FLAGS] "}" <>
+        "#{if Enum.empty?(options), do: " ", else: " [OPTIONS] "}" <>
         "#{
-          params
+          arguments
           |> Enum.reverse()
           |> Enum.map(fn %{name: name} -> "<#{name}>" end)
           |> Enum.join(" ")
@@ -86,14 +86,14 @@ defmodule DoIt.Output do
     IO.puts(description)
     IO.puts("")
 
-    if !Enum.empty?(params) do
-      align = greatest_name(params)
-      IO.puts("Params:")
+    if !Enum.empty?(arguments) do
+      align = greatest_name(arguments)
+      IO.puts("Arguments:")
 
-      for param <- Enum.reverse(params) do
-        with name <- format_param_name(param, align),
-             description <- format_param_description(param),
-             allowed_values <- format_param_allowed_values(param) do
+      for argument <- Enum.reverse(arguments) do
+        with name <- format_argument_name(argument, align),
+             description <- format_argument_description(argument),
+             allowed_values <- format_argument_allowed_values(argument) do
           IO.puts("  #{name} - #{description}#{allowed_values}")
         end
       end
@@ -101,16 +101,16 @@ defmodule DoIt.Output do
       IO.puts("")
     end
 
-    if !Enum.empty?(flags) do
-      align = greatest_name(flags)
-      IO.puts("Flags:")
+    if !Enum.empty?(options) do
+      align = greatest_name(options)
+      IO.puts("Options:")
 
-      for flag <- Enum.reverse(flags) do
-        with alias <- format_flag_alias(flag),
-             name <- format_flag_name(flag, align),
-             description <- format_flag_description(flag),
-             default <- format_flag_default(flag),
-             allowed_values <- format_flag_allowed_values(flag) do
+      for option <- Enum.reverse(options) do
+        with alias <- format_option_alias(option),
+             name <- format_option_name(option, align),
+             description <- format_option_description(option),
+             default <- format_option_default(option),
+             allowed_values <- format_option_allowed_values(option) do
           IO.puts("  #{alias} #{name} - #{description}#{default}#{allowed_values}")
         end
       end

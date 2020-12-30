@@ -6,10 +6,10 @@ defmodule DoIt.CommandDefinitionError do
   defexception [:message]
 end
 
-defmodule DoIt.FlagDefinitionError do
+defmodule DoIt.ArgumentDefinitionError do
   defexception [:message]
 end
 
-defmodule DoIt.ParamDefinitionError do
+defmodule DoIt.OptionDefinitionError do
   defexception [:message]
 end

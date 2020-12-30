@@ -1,11 +1,11 @@
 defmodule DoIt.Command do
   @moduledoc false
 
-  alias DoIt.{Param, Flag}
+  alias DoIt.{Argument, Option}
 
   defmacro __using__(opts) do
     quote do
-      import unquote(__MODULE__), only: [param: 3, param: 4, flag: 3, flag: 4]
+      import unquote(__MODULE__), only: [argument: 3, argument: 4, opt: 3, opt: 4]
       @behaviour DoIt.Runner
 
       Module.register_attribute(__MODULE__, :command, accumulate: false, persist: true)
@@ -34,8 +34,8 @@ defmodule DoIt.Command do
           raise(DoIt.CommandDefinitionError, "description is required for command definition")
       end
 
-      Module.register_attribute(__MODULE__, :params, accumulate: true)
-      Module.register_attribute(__MODULE__, :flags, accumulate: true)
+      Module.register_attribute(__MODULE__, :arguments, accumulate: true)
+      Module.register_attribute(__MODULE__, :options, accumulate: true)
       Module.register_attribute(__MODULE__, :strict, accumulate: true)
       Module.register_attribute(__MODULE__, :aliases, accumulate: true)
 
@@ -52,19 +52,19 @@ defmodule DoIt.Command do
           app: Application.get_application(__MODULE__),
           command: @command,
           description: @description,
-          params: @params,
-          flags: @flags
+          arguments: @arguments,
+          options: @options
         )
       end
 
       def do_it(args, context) do
-        case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
-          {flags, params, []} ->
-            with {:ok, parsed_params} <- Param.parse_input(@params, params),
-                 {:ok, parsed_flags} <- Flag.parse_input(@flags, flags),
-                 {:ok, validated_params} <- Param.validate_input(@params, parsed_params),
-                 {:ok, validated_flags} <- Flag.validate_input(@flags, parsed_flags) do
-              run(Enum.into(validated_params, %{}), Enum.into(validated_flags, %{}), context)
+        case OptionionParser.parse(args, strict: @strict, aliases: @aliases) do
+          {opts, arguments, []} ->
+            with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
+                 {:ok, parsed_options} <- Option.parse_input(@options, options),
+                 {:ok, validated_arguments} <- Argument.validate_input(@arguments, parsed_arguments),
+                 {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
+              run(Enum.into(validated_arguments, %{}), Enum.into(validated_options, %{}), context)
             else
               {:error, _} -> help()
             end
@@ -76,16 +76,29 @@ defmodule DoIt.Command do
     end
   end
 
-  defmacro flag(name, type, description, opts \\ []) do
+  defmacro argument(name, type, description, opts \\ []) do
     quote do
-      flag =
+      argument =
         struct(
-          %Flag{name: unquote(name), type: unquote(type), description: unquote(description)},
+          %Argument{name: unquote(name), type: unquote(type), description: unquote(description)},
           unquote(opts)
         )
-        |> Flag.validate_definition()
+        |> Argument.validate_definition()
 
-      Module.put_attribute(__MODULE__, :flags, flag)
+      Module.put_attribute(__MODULE__, :arguments, argument)
+    end
+  end
+
+  defmacro option(name, type, description, opts \\ []) do
+    quote do
+      option =
+        struct(
+          %Option{name: unquote(name), type: unquote(type), description: unquote(description)},
+          unquote(opts)
+        )
+        |> Option.validate_definition()
+
+      Module.put_attribute(__MODULE__, :options, option)
 
       case List.keyfind(unquote(opts), :keep, 0) do
         {:keep, true} ->
@@ -105,16 +118,4 @@ defmodule DoIt.Command do
     end
   end
 
-  defmacro param(name, type, description, opts \\ []) do
-    quote do
-      param =
-        struct(
-          %Param{name: unquote(name), type: unquote(type), description: unquote(description)},
-          unquote(opts)
-        )
-        |> Param.validate_definition()
-
-      Module.put_attribute(__MODULE__, :params, param)
-    end
-  end
 end
