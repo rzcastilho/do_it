@@ -58,8 +58,8 @@ defmodule DoIt.Command do
       end
 
       def do_it(args, context) do
-        case OptionionParser.parse(args, strict: @strict, aliases: @aliases) do
-          {opts, arguments, []} ->
+        case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
+          {options, arguments, []} ->
             with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
                  {:ok, parsed_options} <- Option.parse_input(@options, options),
                  {:ok, validated_arguments} <- Argument.validate_input(@arguments, parsed_arguments),
