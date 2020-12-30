@@ -33,5 +33,4 @@ defmodule DoIt.MixProject do
       {:credo, "~> 1.5"}
     ]
   end
-
 end

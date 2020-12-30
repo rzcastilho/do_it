@@ -39,16 +39,23 @@ defmodule DoIt.Option do
   def validate_definition_type(%DoIt.Option{type: nil}),
     do: raise(DoIt.OptionDefinitionError, message: "type is required for option definition")
 
-  def validate_definition_type(%DoIt.Option{type: type} = option) when type in @option_types, do: option
+  def validate_definition_type(%DoIt.Option{type: type} = option) when type in @option_types,
+    do: option
 
   def validate_definition_type(%DoIt.Option{type: type}),
     do:
       raise(DoIt.OptionDefinitionError,
-        message: "unrecognized option type '#{type}', allowed types are #{inspect(@option_types)}"
+        message:
+          "unrecognized option type '#{type}', allowed types are #{
+            @option_types
+            |> Enum.map(&Atom.to_string/1)
+            |> Enum.join(", ")
+          }"
       )
 
   def validate_definition_description(%DoIt.Option{description: nil}),
-    do: raise(DoIt.OptionDefinitionError, message: "description is required for option definition")
+    do:
+      raise(DoIt.OptionDefinitionError, message: "description is required for option definition")
 
   def validate_definition_description(%DoIt.Option{description: description} = option)
       when is_binary(description),
@@ -58,7 +65,9 @@ defmodule DoIt.Option do
     do: raise(DoIt.OptionDefinitionError, message: "description must be a string")
 
   def validate_definition_alias(%DoIt.Option{alias: nil} = option), do: option
-  def validate_definition_alias(%DoIt.Option{alias: alias} = option) when is_atom(alias), do: option
+
+  def validate_definition_alias(%DoIt.Option{alias: alias} = option) when is_atom(alias),
+    do: option
 
   def validate_definition_alias(%DoIt.Option{alias: _}),
     do: raise(DoIt.OptionDefinitionError, message: "alias must be an atom")
@@ -66,9 +75,10 @@ defmodule DoIt.Option do
   def validate_definition_keep(%DoIt.Option{keep: nil} = option), do: option
 
   def validate_definition_keep(%DoIt.Option{type: :count, keep: _}),
-    do: raise(DoIt.OptionDefinitionError, message: "keep cannot be used with type :count")
+    do: raise(DoIt.OptionDefinitionError, message: "keep cannot be used with type count")
 
-  def validate_definition_keep(%DoIt.Option{keep: keep} = option) when is_boolean(keep), do: option
+  def validate_definition_keep(%DoIt.Option{keep: keep} = option) when is_boolean(keep),
+    do: option
 
   def validate_definition_keep(%DoIt.Option{keep: _}),
     do: raise(DoIt.OptionDefinitionError, message: "keep must be a boolean")
@@ -79,7 +89,7 @@ defmodule DoIt.Option do
       when type in [:boolean, :count],
       do:
         raise(DoIt.OptionDefinitionError,
-          message: "allowed_values cannot be used with types :boolean and :count"
+          message: "allowed_values cannot be used with types boolean and count"
         )
 
   def validate_definition_allowed_values(
@@ -92,7 +102,7 @@ defmodule DoIt.Option do
 
       _ ->
         raise DoIt.OptionDefinitionError,
-          message: "all values in allowed_values must be of type #{inspect(type)}"
+          message: "all values in allowed_values must be of type #{Atom.to_string(type)}"
     end
   end
 
@@ -132,7 +142,10 @@ defmodule DoIt.Option do
       do: option
 
   def validate_definition_default(%DoIt.Option{type: type, default: _, allowed_values: nil}),
-    do: raise(DoIt.OptionDefinitionError, message: "default value must be of type #{inspect(type)}")
+    do:
+      raise(DoIt.OptionDefinitionError,
+        message: "default value must be of type #{Atom.to_string(type)}"
+      )
 
   def validate_definition_default(
         %DoIt.Option{default: default, allowed_values: allowed_values} = option
@@ -225,7 +238,7 @@ defmodule DoIt.Option do
     {option, String.to_integer(value)}
   rescue
     ArgumentError ->
-      {option, {:error, "invalid :integer value '#{value}' for option #{inspect(name)}"}}
+      {option, {:error, "invalid integer value '#{value}' for option --#{Atom.to_string(name)}"}}
   end
 
   def validate_input_value({%DoIt.Option{type: :float} = option, value}) when is_float(value),
@@ -234,7 +247,8 @@ defmodule DoIt.Option do
   def validate_input_value({%DoIt.Option{name: name, type: :float} = option, value}) do
     {option, String.to_float(value)}
   rescue
-    ArgumentError -> {option, {:error, "invalid :float value '#{value}' for option #{inspect(name)}"}}
+    ArgumentError ->
+      {option, {:error, "invalid float value '#{value}' for option --#{Atom.to_string(name)}"}}
   end
 
   def validate_input_value({%DoIt.Option{} = option, value}) do
@@ -269,8 +283,11 @@ defmodule DoIt.Option do
         {%DoIt.Option{name: name, allowed_values: allowed_values} = option, value}
       ) do
     case Enum.find(allowed_values, fn allowed -> value == allowed end) do
-      nil -> {option, {:error, "value '#{value}' isn't allowed for option #{inspect(name)}"}}
-      _ -> {option, value}
+      nil ->
+        {option, {:error, "value '#{value}' isn't allowed for option --#{Atom.to_string(name)}"}}
+
+      _ ->
+        {option, value}
     end
   end
 

@@ -32,14 +32,17 @@ defmodule DoIt.MainCommand do
           quote do
             %{name: String.downcase(unquote(command)), description: unquote(description)}
           end
+
         {name, %{description: description}} ->
           quote do
-            %{name: unquote(name) |> String.split(".") |> List.last() |> String.downcase(), description: unquote(description)}
+            %{
+              name: unquote(name) |> String.split(".") |> List.last() |> String.downcase(),
+              description: unquote(description)
+            }
           end
       end)
 
     quote do
-
       Module.put_attribute(__MODULE__, :main_functions, unquote(main_functions))
 
       Module.put_attribute(__MODULE__, :command_descriptions, unquote(command_descriptions))
@@ -47,8 +50,12 @@ defmodule DoIt.MainCommand do
       case List.keyfind(unquote(opts), :description, 0) do
         {:description, description} ->
           Module.put_attribute(__MODULE__, :description, description)
+
         _ ->
-          raise(DoIt.MainCommandDefinitionError, "description is required for main command definition")
+          raise(
+            DoIt.MainCommandDefinitionError,
+            "description is required for main command definition"
+          )
       end
 
       case List.keyfind(unquote(opts), :version, 0) do
@@ -57,7 +64,6 @@ defmodule DoIt.MainCommand do
       end
 
       @before_compile unquote(__MODULE__)
-
     end
   end
 
@@ -71,14 +77,21 @@ defmodule DoIt.MainCommand do
         )
       end
 
-      def main(["version" | _]) do
-        IO.inspect @version
-      end
+      def main(["version" | _]), do: IO.inspect(@version)
+      def main(["help" | _]), do: help()
 
       @main_functions
 
-      def main(["help" | _]), do: help()
-      def main([]), do: help()
+      def main([unknown | _]) do
+        IO.puts("invalid command #{unknown}")
+        help()
+      end
+
+      def main([]) do
+        IO.puts("no command provided")
+        help()
+      end
+
       def main(_), do: help()
       def main(), do: help()
     end

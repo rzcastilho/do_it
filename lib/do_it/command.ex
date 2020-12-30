@@ -62,14 +62,19 @@ defmodule DoIt.Command do
           {options, arguments, []} ->
             with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
                  {:ok, parsed_options} <- Option.parse_input(@options, options),
-                 {:ok, validated_arguments} <- Argument.validate_input(@arguments, parsed_arguments),
+                 {:ok, validated_arguments} <-
+                   Argument.validate_input(@arguments, parsed_arguments),
                  {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
               run(Enum.into(validated_arguments, %{}), Enum.into(validated_options, %{}), context)
             else
-              {:error, _} -> help()
+              {:error, message} ->
+                DoIt.Output.print_errors(message)
+                help()
             end
 
-          _ ->
+          {_, _, invalid_options} ->
+            DoIt.Output.print_invalid_options(@command, invalid_options)
+
             help()
         end
       end
@@ -117,5 +122,4 @@ defmodule DoIt.Command do
       end
     end
   end
-
 end

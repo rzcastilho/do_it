@@ -232,8 +232,8 @@ defmodule DoIt.OptionTest do
     end
   end
 
-  test "keep cannot be used with type :count", %{option: option} do
-    assert_raise OptionDefinitionError, "keep cannot be used with type :count", fn ->
+  test "keep cannot be used with type count", %{option: option} do
+    assert_raise OptionDefinitionError, "keep cannot be used with type count", fn ->
       option
       |> Map.put(:keep, true)
       |> Map.put(:type, :count)
@@ -249,9 +249,9 @@ defmodule DoIt.OptionTest do
     end
   end
 
-  test "allowed_values cannot be used with types :boolean and :count", %{option: option} do
+  test "allowed_values cannot be used with types boolean and count", %{option: option} do
     assert_raise OptionDefinitionError,
-                 "allowed_values cannot be used with types :boolean and :count",
+                 "allowed_values cannot be used with types boolean and count",
                  fn ->
                    option
                    |> Map.put(:type, :boolean)
@@ -299,7 +299,10 @@ defmodule DoIt.OptionTest do
              Option.default(options, parsed)
   end
 
-  test "don't fill default values for already informed values", %{options: options, parsed: parsed} do
+  test "don't fill default values for already informed values", %{
+    options: options,
+    parsed: parsed
+  } do
     expected = parsed ++ [limit: 10, format: "json"]
 
     assert expected ==
@@ -336,7 +339,9 @@ defmodule DoIt.OptionTest do
 
   test "invalid input value option list" do
     option = %Option{name: :test, type: :float, description: "Test"}
-    assert {%Option{}, {:error, _}} = Option.validate_input_value({option, ["33.3", "22.2i", "11.1"]})
+
+    assert {%Option{}, {:error, _}} =
+             Option.validate_input_value({option, ["33.3", "22.2i", "11.1"]})
   end
 
   test "valid input options", %{options: options, parsed: parsed} do
@@ -345,7 +350,8 @@ defmodule DoIt.OptionTest do
   end
 
   test "propagate error for valid input value options", %{option: option} do
-    assert {%Option{}, {:error, _}} = Option.validate_input_value({option, {:error, "invalid option"}})
+    assert {%Option{}, {:error, _}} =
+             Option.validate_input_value({option, {:error, "invalid option"}})
   end
 
   test "valid input allowed_values option", %{option: option} do
@@ -374,6 +380,9 @@ defmodule DoIt.OptionTest do
     {:ok, parsed_options} = Option.parse_input(options, parsed)
 
     assert {:error, _} =
-             Option.validate_input(options, List.keyreplace(parsed_options, :limit, 0, {:limit, "5i"}))
+             Option.validate_input(
+               options,
+               List.keyreplace(parsed_options, :limit, 0, {:limit, "5i"})
+             )
   end
 end

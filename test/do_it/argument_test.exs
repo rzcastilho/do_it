@@ -93,12 +93,14 @@ defmodule DoIt.ArgumentTest do
     end
   end
 
-  test "allowed_values cannot be used with type :boolean", %{argument: argument} do
-    assert_raise ArgumentDefinitionError, "allowed_values cannot be used with type :boolean", fn ->
-      argument
-      |> Map.put(:type, :boolean)
-      |> Argument.validate_definition()
-    end
+  test "allowed_values cannot be used with type boolean", %{argument: argument} do
+    assert_raise ArgumentDefinitionError,
+                 "allowed_values cannot be used with type boolean",
+                 fn ->
+                   argument
+                   |> Map.put(:type, :boolean)
+                   |> Argument.validate_definition()
+                 end
   end
 
   test "all values in allowed_values must be of the same type of argument", %{argument: argument} do
@@ -126,7 +128,7 @@ defmodule DoIt.ArgumentTest do
   end
 
   test "parse input wrong number of arguments", %{arguments: arguments} do
-    assert {:error, "wrong number of arguments"} = Argument.parse_input(arguments, ["rzcastilho"])
+    assert {:error, "wrong number of arguments (given 1 expected 2)"} = Argument.parse_input(arguments, ["rzcastilho"])
   end
 
   test "valid input value argument - integer" do
@@ -171,11 +173,13 @@ defmodule DoIt.ArgumentTest do
   end
 
   test "invalid input allowed_values argument", %{argument: argument} do
-    assert {%Argument{}, {:error, _}} = Argument.validate_input_allowed_values({argument, "test123"})
+    assert {%Argument{}, {:error, _}} =
+             Argument.validate_input_allowed_values({argument, "test123"})
   end
 
   test "valid input allowed_values argument - list", %{argument: argument} do
-    assert {%Argument{}, _} = Argument.validate_input_allowed_values({argument, ["test", "assert"]})
+    assert {%Argument{}, _} =
+             Argument.validate_input_allowed_values({argument, ["test", "assert"]})
   end
 
   test "invalid input allowed_values argument - list", %{argument: argument} do

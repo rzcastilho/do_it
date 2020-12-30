@@ -23,7 +23,7 @@ erl_crash.dump
 do_it-*.tar
 
 # Binary
-./do_it
+/do_it
 
 # IntelliJ IDEA
 .idea

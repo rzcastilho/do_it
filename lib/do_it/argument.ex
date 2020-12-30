@@ -25,7 +25,8 @@ defmodule DoIt.Argument do
   def validate_definition_name(%DoIt.Argument{name: nil}),
     do: raise(DoIt.ArgumentDefinitionError, message: "name is required for argument definition")
 
-  def validate_definition_name(%DoIt.Argument{name: name} = argument) when is_atom(name), do: argument
+  def validate_definition_name(%DoIt.Argument{name: name} = argument) when is_atom(name),
+    do: argument
 
   def validate_definition_name(%DoIt.Argument{name: _}),
     do: raise(DoIt.ArgumentDefinitionError, message: "name must be an atom")
@@ -33,17 +34,26 @@ defmodule DoIt.Argument do
   def validate_definition_type(%DoIt.Argument{type: nil}),
     do: raise(DoIt.ArgumentDefinitionError, message: "type is required for argument definition")
 
-  def validate_definition_type(%DoIt.Argument{type: type} = argument) when type in @argument_types,
-    do: argument
+  def validate_definition_type(%DoIt.Argument{type: type} = argument)
+      when type in @argument_types,
+      do: argument
 
   def validate_definition_type(%DoIt.Argument{type: type}),
     do:
       raise(DoIt.ArgumentDefinitionError,
-        message: "unrecognized argument type '#{type}', allowed types are #{inspect(@argument_types)}"
+        message:
+          "unrecognized argument type '#{type}', allowed types are #{
+            @argument_types
+            |> Enum.map(&Atom.to_string/1)
+            |> Enum.join(", ")
+          }"
       )
 
   def validate_definition_description(%DoIt.Argument{description: nil}),
-    do: raise(DoIt.ArgumentDefinitionError, message: "description is required for argument definition")
+    do:
+      raise(DoIt.ArgumentDefinitionError,
+        message: "description is required for argument definition"
+      )
 
   def validate_definition_description(%DoIt.Argument{description: description} = argument)
       when is_binary(description),
@@ -52,13 +62,14 @@ defmodule DoIt.Argument do
   def validate_definition_description(%DoIt.Argument{description: _}),
     do: raise(DoIt.ArgumentDefinitionError, message: "description must be a string")
 
-  def validate_definition_allowed_values(%DoIt.Argument{allowed_values: nil} = argument), do: argument
+  def validate_definition_allowed_values(%DoIt.Argument{allowed_values: nil} = argument),
+    do: argument
 
   def validate_definition_allowed_values(%DoIt.Argument{type: type, allowed_values: _})
       when type == :boolean,
       do:
         raise(DoIt.ArgumentDefinitionError,
-          message: "allowed_values cannot be used with type :boolean"
+          message: "allowed_values cannot be used with type boolean"
         )
 
   def validate_definition_allowed_values(
@@ -71,7 +82,7 @@ defmodule DoIt.Argument do
 
       _ ->
         raise DoIt.ArgumentDefinitionError,
-          message: "all values in allowed_values must be of type #{inspect(type)}"
+          message: "all values in allowed_values must be of type #{Atom.to_string(type)}"
     end
   end
 
@@ -81,7 +92,8 @@ defmodule DoIt.Argument do
   def parse_input(arguments, parsed) do
     cond do
       Enum.count(arguments) != Enum.count(parsed) ->
-        {:error, "wrong number of arguments"}
+        {:error,
+         "wrong number of arguments (given #{Enum.count(parsed)} expected #{Enum.count(arguments)})"}
 
       Enum.empty?(arguments) == 0 ->
         {:ok, []}
@@ -134,14 +146,16 @@ defmodule DoIt.Argument do
     validate_input_value({argument, values}, [])
   end
 
-  def validate_input_value({%DoIt.Argument{type: :integer} = argument, value}) when is_integer(value),
-    do: {argument, value}
+  def validate_input_value({%DoIt.Argument{type: :integer} = argument, value})
+      when is_integer(value),
+      do: {argument, value}
 
   def validate_input_value({%DoIt.Argument{name: name, type: :integer} = argument, value}) do
     {argument, String.to_integer(value)}
   rescue
     ArgumentError ->
-      {argument, {:error, "invalid :integer value '#{value}' for argument #{inspect(name)}"}}
+      {argument,
+       {:error, "invalid integer value '#{value}' for argument #{Atom.to_string(name)}"}}
   end
 
   def validate_input_value({%DoIt.Argument{type: :float} = argument, value}) when is_float(value),
@@ -151,7 +165,7 @@ defmodule DoIt.Argument do
     {argument, String.to_float(value)}
   rescue
     ArgumentError ->
-      {argument, {:error, "invalid :float value '#{value}' for argument #{inspect(name)}"}}
+      {argument, {:error, "invalid float value '#{value}' for argument #{Atom.to_string(name)}"}}
   end
 
   def validate_input_value({%DoIt.Argument{} = argument, value}) do
@@ -186,8 +200,12 @@ defmodule DoIt.Argument do
         {%DoIt.Argument{name: name, allowed_values: allowed_values} = argument, value}
       ) do
     case Enum.find(allowed_values, fn allowed -> value == allowed end) do
-      nil -> {argument, {:error, "value '#{value}' isn't allowed for argument #{inspect(name)}"}}
-      _ -> {argument, value}
+      nil ->
+        {argument,
+         {:error, "value '#{value}' isn't allowed for argument #{Atom.to_string(name)}"}}
+
+      _ ->
+        {argument, value}
     end
   end
 
