@@ -5,7 +5,7 @@ defmodule DoIt.Command do
 
   defmacro __using__(opts) do
     quote do
-      import unquote(__MODULE__), only: [argument: 3, argument: 4, opt: 3, opt: 4]
+      import unquote(__MODULE__), only: [argument: 3, argument: 4, option: 3, option: 4]
       @behaviour DoIt.Runner
 
       Module.register_attribute(__MODULE__, :command, accumulate: false, persist: true)
