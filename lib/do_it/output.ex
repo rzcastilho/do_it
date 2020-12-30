@@ -23,7 +23,12 @@ defmodule DoIt.Output do
   def format_flag_alias(%Flag{alias: alias}), do: "-#{Atom.to_string(alias)},"
 
   def format_flag_name(%Flag{name: name}, align),
-    do: "--#{String.pad_trailing(Atom.to_string(name), align)}"
+    do: "--#{
+      name
+      |> Atom.to_string()
+      |> String.replace("_", "-")
+      |> String.pad_trailing(align)
+    }"
 
   def format_flag_description(%Flag{description: description}), do: description
   def format_flag_default(%Flag{default: nil}), do: ""
