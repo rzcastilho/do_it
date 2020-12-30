@@ -1,3 +1,5 @@
+![CI](https://github.com/rzcastilho/do_it/workflows/CI/badge.svg)
+
 # Do It - Elixir Command Line Interface Framework
 
 A framework that helps to develop command line tools with Elixir.
