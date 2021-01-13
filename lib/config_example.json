@@ -1,0 +1,18 @@
+{
+  "another_key": [
+    "a",
+    "b",
+    "c",
+    "d"
+  ],
+  "key": "value",
+  "map_value": {
+    "a": "a"
+  },
+  "server": {
+    "hostname": "www.mockatron.io",
+    "port": 443,
+    "schema": "https"
+  },
+  "token": "lsndckjsdiucnsjdcsdjckscsdcn"
+}
