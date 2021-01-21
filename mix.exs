@@ -7,7 +7,7 @@ defmodule DoIt.MixProject do
   def project do
     [
       app: :do_it,
-      version: @version,
+      version: "0.1.0",
       deps: deps(),
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
@@ -27,7 +27,8 @@ defmodule DoIt.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {DoIt, []}
     ]
   end
 
@@ -68,5 +69,4 @@ defmodule DoIt.MixProject do
       extras: ["README.md", "LICENSE"]
     ]
   end
-
 end

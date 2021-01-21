@@ -3,54 +3,73 @@ defmodule DoIt.Commfig do
   require Logger
 
   defmodule State do
-    defstruct [:filename, :config]
+    defstruct [:file, :data]
   end
 
-  def start_link(filename) do
-    GenServer.start_link(__MODULE__, filename, name: __MODULE__)
+  def start_link([dirname, filename]) do
+    GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
   end
 
-  def state() do
-    GenServer.call(__MODULE__, :state)
+  def get_data() do
+    GenServer.call(__MODULE__, :get_data)
+  end
+
+  def get_file() do
+    GenServer.call(__MODULE__, :get_file)
   end
 
   def set(keys, value) when is_list(keys) do
-    GenServer.cast(__MODULE__, {:set, keys, value})
+    GenServer.call(__MODULE__, {:set, keys, value})
   end
 
   def set(key, value) do
-    GenServer.cast(__MODULE__, {:set, [key], value})
+    GenServer.call(__MODULE__, {:set, [key], value})
   end
 
   @impl true
-  def init(filename) do
-    config = case File.exists?(filename) do
-      true ->
-        filename
-        |> File.read!()
-        |> Jason.decode!()
-      _ ->
-        %{}
-    end
-    {:ok, %State{filename: filename, config: config}}
+  def init([dirname, filename]) do
+    Process.flag(:trap_exit, true)
+    if !File.exists?(dirname), do: File.mkdir_p(dirname)
+    file = Path.join(dirname, filename)
+
+    data =
+      case File.exists?(file) do
+        true ->
+          file
+          |> File.read!()
+          |> Jason.decode!()
+
+        _ ->
+          %{}
+      end
+
+    {:ok, %State{file: file, data: data}}
   end
 
   @impl true
-  def handle_call(:state, _from, state) do
-    {:reply, state, state}
+  def handle_call(:get_data, _from, %State{data: data} = state) do
+    {:reply, data, state}
   end
 
   @impl true
-  def handle_cast({:set, keys, value}, %State{filename: filename, config: config} = state) do
-    with new_config <- put_in(config, keys, value) do
-      Jason.encode!(new_config)
+  def handle_call(:get_file, _from, %State{file: file} = state) do
+    {:reply, file, state}
+  end
+
+  @impl true
+  def handle_call({:set, keys, value}, _from, %State{file: file, data: data} = state) do
+    with new_data <- put_in(data, keys, value) do
+      Jason.encode!(new_data)
       |> Jason.Formatter.pretty_print()
-      |> (&(File.write!(filename, &1))).()
-      {:noreply, %{state | config: new_config}}
+      |> (&File.write!(file, &1)).()
+
+      {:reply, :ok, %{state | data: new_data}}
     end
   rescue
-    ArgumentError ->
-      {:noreply, state}
-  end
+    e in ArgumentError ->
+      {:reply, {:error, ArgumentError.message(e)}, state}
 
+    e in FunctionClauseError ->
+      {:reply, {:error, FunctionClauseError.message(e)}, state}
+  end
 end
