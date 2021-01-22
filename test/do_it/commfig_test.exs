@@ -26,4 +26,11 @@ defmodule DoIt.CommfigTest do
     assert :ok = Commfig.set("message", "Hello World!")
     assert %{"message" => "Hello World!"} = Commfig.get_data()
   end
+
+  test "success getting key" do
+    Commfig.set("msg", "Hello World Again!")
+    assert "Hello World Again!" = Commfig.get("msg")
+    assert %{"msg" => "Hello World Again!"} = Commfig.get_data()
+  end
+
 end

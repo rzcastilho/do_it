@@ -52,6 +52,14 @@ defmodule DoIt.Commfig do
     GenServer.call(__MODULE__, {:set, [key], value})
   end
 
+  def get(keys) when is_list(keys) do
+    GenServer.call(__MODULE__, {:get, keys})
+  end
+
+  def get(key) do
+    GenServer.call(__MODULE__, {:get, [key]})
+  end
+
   @impl true
   def init([dirname, filename]) do
     Process.flag(:trap_exit, true)
@@ -98,4 +106,10 @@ defmodule DoIt.Commfig do
     e in FunctionClauseError ->
       {:reply, {:error, FunctionClauseError.message(e)}, state}
   end
+
+  @impl true
+  def handle_call({:get, keys}, _from, %State{data: data} = state) do
+    {:reply, get_in(data, keys), state}
+  end
+
 end
