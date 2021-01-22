@@ -25,3 +25,10 @@ defmodule DoIt.OptionDefinitionError do
   """
   defexception [:message]
 end
+
+defmodule DoIt.InitConfigError do
+  @moduledoc """
+  It shows a problem with the initialization of the persistent configuration.
+  """
+  defexception [:message]
+end

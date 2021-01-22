@@ -6,7 +6,6 @@ defmodule DoIt.CommfigTest do
 
   setup_all do
     Commfig.set("test", "setup")
-    IO.inspect(:sys.get_state(Commfig))
     on_exit(fn -> File.rm!(Commfig.get_file()) end)
     {:ok, Commfig.get_data()}
   end

@@ -8,10 +8,8 @@ defmodule DoIt do
       {
         DoIt.Commfig,
         [
-          Application.get_env(:do_it, DoIt.Commfig)[:dirname] ||
-            "#{System.user_home()}/.#{Application.get_application(__MODULE__)}",
-          Application.get_env(:do_it, DoIt.Commfig)[:filename] ||
-            "#{Application.get_application(__MODULE__)}.json"
+          Application.get_env(:do_it, DoIt.Commfig)[:dirname],
+          Application.get_env(:do_it, DoIt.Commfig)[:filename]
         ]
       }
     ]
