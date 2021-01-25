@@ -128,7 +128,8 @@ defmodule DoIt.ArgumentTest do
   end
 
   test "parse input wrong number of arguments", %{arguments: arguments} do
-    assert {:error, "wrong number of arguments (given 1 expected 2)"} = Argument.parse_input(arguments, ["rzcastilho"])
+    assert {:error, "wrong number of arguments (given 1 expected 2)"} =
+             Argument.parse_input(arguments, ["rzcastilho"])
   end
 
   test "valid input value argument - integer" do

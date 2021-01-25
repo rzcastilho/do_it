@@ -19,7 +19,10 @@ defmodule DoIt.MainCommand do
             def main([unquote(command) | args]) do
               apply(String.to_existing_atom("Elixir.#{unquote(module)}"), :do_it, [
                 args,
-                %{env: System.get_env()}
+                %{
+                  env: System.get_env(),
+                  config: DoIt.Commfig.get_data()
+                }
               ])
             end
           end
@@ -57,6 +60,8 @@ defmodule DoIt.MainCommand do
             "description is required for main command definition"
           )
       end
+
+      Module.register_attribute(__MODULE__, :version, persist: true)
 
       case List.keyfind(unquote(opts), :version, 0) do
         nil -> Module.put_attribute(__MODULE__, :version, unquote(version_number()))
@@ -150,9 +155,23 @@ defmodule DoIt.MainCommand do
   def version_number() do
     case File.read!("mix.exs") |> Code.string_to_quoted!() do
       {:defmodule, _, [{:__aliases__, _, [_, :MixProject]}, [do: {:__block__, [], do_block}]]} ->
-        do_block
-        |> find_project_func()
-        |> List.keyfind(:version, 0, :undefined)
+        case do_block
+             |> find_project_func()
+             |> List.keyfind(:version, 0, :undefined) do
+          {:version, version} when is_binary(version) ->
+            version
+
+          {:version, {:@, _, _}} ->
+            case do_block
+                 |> find_module_attribute(:version)
+                 |> List.first() do
+              nil -> :undefined
+              version -> version
+            end
+
+          _ ->
+            :undefined
+        end
 
       _ ->
         :undefined
@@ -168,4 +187,15 @@ defmodule DoIt.MainCommand do
   end
 
   def find_project_func([]), do: []
+
+  def find_module_attribute([{:@, _, [{attribute, _, value}]} | _], attr)
+      when attribute == attr do
+    value
+  end
+
+  def find_module_attribute([_ | rest], attr) do
+    find_module_attribute(rest, attr)
+  end
+
+  def find_module_attribute([], _), do: []
 end
