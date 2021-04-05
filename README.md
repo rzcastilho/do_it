@@ -37,10 +37,21 @@ defmodule Hello do
 end
 ```
 
-A `help` argument is automatically added to the command describing its usage.
+A `help` option is automatically added to the command to describe its usage.
 
 ```shell script
+$ ./cli hello --help
 
+Usage: cli hello [OPTIONS] <message>
+
+Useless hello command
+
+Arguments:
+  message   Hello nice message
+
+Options:
+      --help       Print this help
+  -t, --template   Hello message template (Default: "Hello <%= @message %>!!!")
 ```
 
 Use `DoIt.Command` and provide a required `description`, the command name is the module name, you can override that name using the `name` option.
@@ -80,8 +91,6 @@ def deps do
   ]
 end
 ```
-
-## Usage
 
 ## License
 

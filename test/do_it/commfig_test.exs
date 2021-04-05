@@ -32,5 +32,4 @@ defmodule DoIt.CommfigTest do
     assert "Hello World Again!" = Commfig.get("msg")
     assert %{"msg" => "Hello World Again!"} = Commfig.get_data()
   end
-
 end

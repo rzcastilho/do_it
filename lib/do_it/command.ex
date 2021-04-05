@@ -40,7 +40,12 @@ defmodule DoIt.Command do
       Module.register_attribute(__MODULE__, :strict, accumulate: true)
       Module.register_attribute(__MODULE__, :aliases, accumulate: true)
 
-      Module.put_attribute(__MODULE__, :options, %Option{name: :help, type: :boolean, description: "Print usage"})
+      Module.put_attribute(__MODULE__, :options, %Option{
+        name: :help,
+        type: :boolean,
+        description: "Print this help"
+      })
+
       Module.put_attribute(__MODULE__, :strict, {:help, :boolean})
 
       @before_compile unquote(__MODULE__)
@@ -64,16 +69,24 @@ defmodule DoIt.Command do
       def do_it(args, context) do
         case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
           {options, arguments, []} ->
-            with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
-                 {:ok, parsed_options} <- Option.parse_input(@options, options),
-                 {:ok, validated_arguments} <-
-                   Argument.validate_input(@arguments, parsed_arguments),
-                 {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
-              run(Enum.into(validated_arguments, %{}), Enum.into(validated_options, %{}), context)
+            if {:help, true} in options do
+              help()
             else
-              {:error, message} ->
-                DoIt.Output.print_errors(message)
-                help()
+              with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
+                   {:ok, parsed_options} <- Option.parse_input(@options, options),
+                   {:ok, validated_arguments} <-
+                     Argument.validate_input(@arguments, parsed_arguments),
+                   {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
+                run(
+                  Enum.into(validated_arguments, %{}),
+                  Enum.into(validated_options, %{}),
+                  context
+                )
+              else
+                {:error, message} ->
+                  DoIt.Output.print_errors(message)
+                  help()
+              end
             end
 
           {_, _, invalid_options} ->

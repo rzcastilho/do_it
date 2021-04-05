@@ -69,5 +69,4 @@ defmodule DoIt.MixProject do
       extras: ["README.md", "LICENSE"]
     ]
   end
-
 end
