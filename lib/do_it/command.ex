@@ -40,6 +40,8 @@ defmodule DoIt.Command do
       Module.register_attribute(__MODULE__, :strict, accumulate: true)
       Module.register_attribute(__MODULE__, :aliases, accumulate: true)
 
+      Module.put_attribute(%Option{name: :help, type: :boolean, description: "Print usage"})
+
       @before_compile unquote(__MODULE__)
     end
   end

@@ -7,7 +7,7 @@ defmodule DoIt.MixProject do
   def project do
     [
       app: :do_it,
-      version: "0.1.0",
+      version: @version,
       deps: deps(),
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
@@ -69,4 +69,5 @@ defmodule DoIt.MixProject do
       extras: ["README.md", "LICENSE"]
     ]
   end
+
 end

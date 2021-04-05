@@ -6,21 +6,6 @@ defmodule DoIt.Commfig do
     defstruct [:file, :data]
   end
 
-  def start_link(), do: raise(
-    DoIt.InitConfigError,
-    message: "dirname and filename are required for the initialization of the persistent configuration"
-  )
-
-  def start_link([]), do: raise(
-    DoIt.InitConfigError,
-    message: "dirname and filename are required for the initialization of the persistent configuration"
-  )
-
-  def start_link([_]), do: raise(
-    DoIt.InitConfigError,
-    message: "dirname and filename are required for the initialization of the persistent configuration"
-  )
-
   def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename) do
     case {dirname, filename} do
       {nil, nil} ->
@@ -35,6 +20,16 @@ defmodule DoIt.Commfig do
   def start_link([dirname, filename]) do
     GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
   end
+
+  def start_link(_), do: raise(
+    DoIt.InitConfigError,
+    message: "dirname and filename are required for the initialization of the persistent configuration"
+  )
+
+  def start_link(), do: raise(
+    DoIt.InitConfigError,
+    message: "dirname and filename are required for the initialization of the persistent configuration"
+  )
 
   def get_data() do
     GenServer.call(__MODULE__, :get_data)

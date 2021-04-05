@@ -64,7 +64,7 @@ defmodule DoIt.MainCommand do
       Module.register_attribute(__MODULE__, :version, persist: true)
 
       case List.keyfind(unquote(opts), :version, 0) do
-        nil -> Module.put_attribute(__MODULE__, :version, unquote(version_number()))
+        nil -> Module.put_attribute(__MODULE__, :version, {:version, unquote(version_number())})
         version -> Module.put_attribute(__MODULE__, :version, version)
       end
 
