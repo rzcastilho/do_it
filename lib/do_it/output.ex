@@ -32,7 +32,30 @@ defmodule DoIt.Output do
   def format_argument_name(%Argument{name: name}, align),
     do: "#{String.pad_trailing(Atom.to_string(name), align)}"
 
+  @doc """
+  It returns the description from `DoIt.Argument`.
+
+  ## Example
+
+    iex> DoIt.Output.format_argument_description(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+    "Makes the command verbose"
+  """
   def format_argument_description(%Argument{description: description}), do: description
+
+  @doc """
+  It returns the allowed values from the given `DoIt.Argument`.
+
+  ## Examples
+
+    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
+    " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
+
+    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+    ""
+
+    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
+    " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
+  """
   def format_argument_allowed_values(%Argument{allowed_values: nil}), do: ""
 
   def format_argument_allowed_values(%Argument{type: :string, allowed_values: allowed_values}),
