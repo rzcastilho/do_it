@@ -3,17 +3,59 @@ defmodule DoIt.Output do
 
   alias DoIt.{Argument, Option}
 
-  def greatest_name(list) do
+  @doc """
+  It gets the length of the lengthiest name attribute.
+
+  ## Examples
+
+    iex> DoIt.Output.lengthiest_name([%{name: "great"}, %{name: "greatest"}])
+    8
+
+    iex> DoIt.Output.lengthiest_name([%{name: "Elixir"}, %{name: "Erlang"}, %{name: "DoIt"}, %{name: "OTP"}])
+    6
+  """
+  def lengthiest_name(list) do
     list
     |> Enum.map(fn %{name: name} -> "#{name}" end)
     |> Enum.max_by(&String.length/1)
     |> String.length()
   end
 
+  @doc """
+  It formats the given `DoIt.Argument` name attribute with spaces on the right, accordingly with the `align` parameter.
+
+  ## Examples
+
+    iex> DoIt.Output.format_argument_name(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"}, 15)
+    "verbose        "
+  """
   def format_argument_name(%Argument{name: name}, align),
     do: "#{String.pad_trailing(Atom.to_string(name), align)}"
 
+  @doc """
+  It returns the description from `DoIt.Argument`.
+
+  ## Example
+
+    iex> DoIt.Output.format_argument_description(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+    "Makes the command verbose"
+  """
   def format_argument_description(%Argument{description: description}), do: description
+
+  @doc """
+  It returns the allowed values from the given `DoIt.Argument`.
+
+  ## Examples
+
+    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
+    " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
+
+    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+    ""
+
+    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
+    " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
+  """
   def format_argument_allowed_values(%Argument{allowed_values: nil}), do: ""
 
   def format_argument_allowed_values(%Argument{type: :string, allowed_values: allowed_values}),
@@ -63,7 +105,7 @@ defmodule DoIt.Output do
     IO.puts("")
 
     IO.puts("Commands:")
-    align = greatest_name(commands)
+    align = lengthiest_name(commands)
 
     for %{name: name, description: description} <- commands do
       IO.puts("  #{String.pad_trailing(name, align)}     #{description}")
@@ -98,7 +140,7 @@ defmodule DoIt.Output do
     IO.puts("")
 
     if !Enum.empty?(arguments) do
-      align = greatest_name(arguments)
+      align = lengthiest_name(arguments)
       IO.puts("Arguments:")
 
       for argument <- Enum.reverse(arguments) do
@@ -113,7 +155,7 @@ defmodule DoIt.Output do
     end
 
     if !Enum.empty?(options) do
-      align = greatest_name(options)
+      align = lengthiest_name(options)
       IO.puts("Options:")
 
       for option <- Enum.reverse(options) do

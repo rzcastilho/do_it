@@ -2,7 +2,7 @@ defmodule DoIt.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/rzcastilho/do_it"
-  @version "0.1.0"
+  @version "0.2.0"
 
   def project do
     [
@@ -27,7 +27,8 @@ defmodule DoIt.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {DoIt, []}
     ]
   end
 
@@ -37,7 +38,8 @@ defmodule DoIt.MixProject do
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:excoveralls, "~> 0.13", only: :test},
-      {:credo, "~> 1.5"}
+      {:credo, "~> 1.5"},
+      {:jason, "~> 1.2"}
     ]
   end
 
@@ -67,5 +69,4 @@ defmodule DoIt.MixProject do
       extras: ["README.md", "LICENSE"]
     ]
   end
-
 end

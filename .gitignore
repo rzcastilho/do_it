@@ -28,3 +28,6 @@ do_it-*.tar
 # IntelliJ IDEA
 .idea
 *.iml
+
+# Visual Studio Code
+.vscode

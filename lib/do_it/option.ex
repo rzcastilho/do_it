@@ -252,7 +252,7 @@ defmodule DoIt.Option do
   end
 
   def validate_input_value({%DoIt.Option{} = option, value}) do
-    {option, "#{value}"}
+    {option, value}
   end
 
   def validate_input_value({%DoIt.Option{} = option, [value | values]}, acc) do
