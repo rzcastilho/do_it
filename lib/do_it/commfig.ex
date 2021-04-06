@@ -6,35 +6,45 @@ defmodule DoIt.Commfig do
     defstruct [:file, :data]
   end
 
-  def start_link(), do: raise(
-    DoIt.InitConfigError,
-    message: "dirname and filename are required for the initialization of the persistent configuration"
-  )
-
-  def start_link([]), do: raise(
-    DoIt.InitConfigError,
-    message: "dirname and filename are required for the initialization of the persistent configuration"
-  )
-
-  def start_link([_]), do: raise(
-    DoIt.InitConfigError,
-    message: "dirname and filename are required for the initialization of the persistent configuration"
-  )
-
   def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename) do
     case {dirname, filename} do
       {nil, nil} ->
-        raise(DoIt.InitConfigError, message: "dirname and filename are required for the initialization of the persistent configuration")
+        raise(DoIt.InitConfigError,
+          message:
+            "dirname and filename are required for the initialization of the persistent configuration"
+        )
+
       {nil, _} ->
-        raise(DoIt.InitConfigError, message: "dirname is required for the initialization of the persistent configuration")
+        raise(DoIt.InitConfigError,
+          message: "dirname is required for the initialization of the persistent configuration"
+        )
+
       {_, nil} ->
-        raise(DoIt.InitConfigError, message: "filename is required for the initialization of the persistent configuration")
+        raise(DoIt.InitConfigError,
+          message: "filename is required for the initialization of the persistent configuration"
+        )
     end
   end
 
   def start_link([dirname, filename]) do
     GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
   end
+
+  def start_link(_),
+    do:
+      raise(
+        DoIt.InitConfigError,
+        message:
+          "dirname and filename are required for the initialization of the persistent configuration"
+      )
+
+  def start_link(),
+    do:
+      raise(
+        DoIt.InitConfigError,
+        message:
+          "dirname and filename are required for the initialization of the persistent configuration"
+      )
 
   def get_data() do
     GenServer.call(__MODULE__, :get_data)
@@ -111,5 +121,4 @@ defmodule DoIt.Commfig do
   def handle_call({:get, keys}, _from, %State{data: data} = state) do
     {:reply, get_in(data, keys), state}
   end
-
 end
