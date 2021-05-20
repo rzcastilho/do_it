@@ -10,6 +10,19 @@ defmodule DoIt.CommfigTest do
     {:ok, Commfig.get_data()}
   end
 
+  test "success getting dir name" do
+    assert Application.get_env(:do_it, DoIt.Commfig)[:dirname] == Commfig.get_dir()
+  end
+
+  test "success getting file name" do
+    assert "#{Application.get_env(:do_it, DoIt.Commfig)[:dirname]}#{Application.get_env(:do_it, DoIt.Commfig)[:filename]}" == Commfig.get_file()
+  end
+
+  test "success getting data" do
+    assert %{"test" => value} = Commfig.get_data()
+    assert value == "setup"
+  end
+
   test "match previous configured key", %{"test" => value} do
     assert value == "setup"
   end

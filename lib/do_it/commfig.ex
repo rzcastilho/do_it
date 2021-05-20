@@ -1,9 +1,11 @@
 defmodule DoIt.Commfig do
+  @moduledoc false
   use GenServer
   require Logger
 
   defmodule State do
-    defstruct [:file, :data]
+    @moduledoc false
+    defstruct [:dir, :file, :data]
   end
 
   def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename) do
@@ -46,12 +48,16 @@ defmodule DoIt.Commfig do
           "dirname and filename are required for the initialization of the persistent configuration"
       )
 
-  def get_data() do
-    GenServer.call(__MODULE__, :get_data)
+  def get_dir() do
+    GenServer.call(__MODULE__, :get_dir)
   end
 
   def get_file() do
     GenServer.call(__MODULE__, :get_file)
+  end
+
+  def get_data() do
+    GenServer.call(__MODULE__, :get_data)
   end
 
   def set(keys, value) when is_list(keys) do
@@ -87,17 +93,22 @@ defmodule DoIt.Commfig do
           %{}
       end
 
-    {:ok, %State{file: file, data: data}}
+    {:ok, %State{dir: dirname, file: file, data: data}}
   end
 
   @impl true
-  def handle_call(:get_data, _from, %State{data: data} = state) do
-    {:reply, data, state}
+  def handle_call(:get_dir, _from, %State{dir: dir} = state) do
+    {:reply, dir, state}
   end
 
   @impl true
   def handle_call(:get_file, _from, %State{file: file} = state) do
     {:reply, file, state}
+  end
+
+  @impl true
+  def handle_call(:get_data, _from, %State{data: data} = state) do
+    {:reply, data, state}
   end
 
   @impl true
