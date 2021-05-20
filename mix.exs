@@ -1,4 +1,6 @@
 defmodule DoIt.MixProject do
+  @moduledoc false
+
   use Mix.Project
 
   @source_url "https://github.com/rzcastilho/do_it"

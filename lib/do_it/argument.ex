@@ -95,7 +95,7 @@ defmodule DoIt.Argument do
         {:error,
          "wrong number of arguments (given #{Enum.count(parsed)} expected #{Enum.count(arguments)})"}
 
-      Enum.empty?(arguments) == 0 ->
+      Enum.empty?(arguments) ->
         {:ok, []}
 
       true ->
