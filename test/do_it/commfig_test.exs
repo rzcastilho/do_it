@@ -15,7 +15,10 @@ defmodule DoIt.CommfigTest do
   end
 
   test "success getting file name" do
-    assert "#{Application.get_env(:do_it, DoIt.Commfig)[:dirname]}#{Application.get_env(:do_it, DoIt.Commfig)[:filename]}" == Commfig.get_file()
+    assert Path.join(
+             Application.get_env(:do_it, DoIt.Commfig)[:dirname],
+             Application.get_env(:do_it, DoIt.Commfig)[:filename]
+           ) == Commfig.get_file()
   end
 
   test "success getting data" do
