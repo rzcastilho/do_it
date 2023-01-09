@@ -42,11 +42,7 @@ defmodule DoIt.Argument do
     do:
       raise(DoIt.ArgumentDefinitionError,
         message:
-          "unrecognized argument type '#{type}', allowed types are #{
-            @argument_types
-            |> Enum.map(&Atom.to_string/1)
-            |> Enum.join(", ")
-          }"
+          "unrecognized argument type '#{type}', allowed types are #{@argument_types |> Enum.map(&Atom.to_string/1) |> Enum.join(", ")}"
       )
 
   def validate_definition_description(%DoIt.Argument{description: nil}),

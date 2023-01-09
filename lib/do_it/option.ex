@@ -46,11 +46,7 @@ defmodule DoIt.Option do
     do:
       raise(DoIt.OptionDefinitionError,
         message:
-          "unrecognized option type '#{type}', allowed types are #{
-            @option_types
-            |> Enum.map(&Atom.to_string/1)
-            |> Enum.join(", ")
-          }"
+          "unrecognized option type '#{type}', allowed types are #{@option_types |> Enum.map(&Atom.to_string/1) |> Enum.join(", ")}"
       )
 
   def validate_definition_description(%DoIt.Option{description: nil}),
