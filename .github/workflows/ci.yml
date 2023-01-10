@@ -19,11 +19,10 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2.3.2
-      - uses: actions/setup-elixir@v1.5.0
+      - uses: actions/setup-elixir@v1
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
-          experimental-otp: true
       - run: |
           mix local.hex --force
           mix local.rebar --force
