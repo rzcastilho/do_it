@@ -11,7 +11,7 @@ defmodule DoIt.MixProject do
       app: :do_it,
       version: @version,
       deps: deps(),
-      elixir: "~> 1.8",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -37,11 +37,11 @@ defmodule DoIt.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.23", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.13", only: :test},
-      {:credo, "~> 1.5"},
-      {:jason, "~> 1.2"}
+      {:dialyxir, "~> 1.2", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.15", only: :test},
+      {:credo, "~> 1.6"},
+      {:jason, "~> 1.4"}
     ]
   end
 

@@ -68,13 +68,7 @@ defmodule DoIt.Output do
   def format_option_alias(%Option{alias: alias}), do: "-#{Atom.to_string(alias)},"
 
   def format_option_name(%Option{name: name}, align),
-    do:
-      "--#{
-        name
-        |> Atom.to_string()
-        |> String.replace("_", "-")
-        |> String.pad_trailing(align)
-      }"
+    do: "--#{name |> Atom.to_string() |> String.replace("_", "-") |> String.pad_trailing(align)}"
 
   def format_option_description(%Option{description: description}), do: description
   def format_option_default(%Option{default: nil}), do: ""
@@ -126,12 +120,7 @@ defmodule DoIt.Output do
     IO.puts(
       "Usage: #{app} #{command}" <>
         "#{if Enum.empty?(options), do: " ", else: " [OPTIONS] "}" <>
-        "#{
-          arguments
-          |> Enum.reverse()
-          |> Enum.map(fn %{name: name} -> "<#{name}>" end)
-          |> Enum.join(" ")
-        }"
+        "#{arguments |> Enum.reverse() |> Enum.map(fn %{name: name} -> "<#{name}>" end) |> Enum.join(" ")}"
     )
 
     IO.puts("")
@@ -173,27 +162,17 @@ defmodule DoIt.Output do
   end
 
   def print_errors(errors) when is_list(errors) do
-    IO.puts(
-      "error(s):\n#{
-        errors
-        |> Enum.map(fn error -> "  * #{error}" end)
-        |> Enum.join("\n")
-      }"
-    )
+    IO.puts("error(s):\n#{errors |> Enum.map(fn error -> "  * #{error}" end) |> Enum.join("\n")}")
   end
 
   def print_errors(error), do: IO.puts(error)
 
   def print_invalid_options(command, invalid_options) do
     IO.puts(
-      "invalid option(s) for command #{command}:\n#{
-        invalid_options
-        |> Enum.map(fn
-          {option, nil} -> "  * #{option} without value"
-          {option, value} -> "  * #{option} with #{value}"
-        end)
-        |> Enum.join("\n")
-      }"
+      "invalid option(s) for command #{command}:\n#{invalid_options |> Enum.map(fn
+        {option, nil} -> "  * #{option} without value"
+        {option, value} -> "  * #{option} with #{value}"
+      end) |> Enum.join("\n")}"
     )
   end
 end
