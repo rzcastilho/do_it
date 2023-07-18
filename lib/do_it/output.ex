@@ -120,7 +120,7 @@ defmodule DoIt.Output do
     IO.puts(
       "Usage: #{app} #{command}" <>
         "#{if Enum.empty?(options), do: " ", else: " [OPTIONS] "}" <>
-        "#{arguments |> Enum.reverse() |> Enum.map(fn %{name: name} -> "<#{name}>" end) |> Enum.join(" ")}"
+        "#{arguments |> Enum.reverse() |> Enum.map_join(" ", fn %{name: name} -> "<#{name}>" end)}"
     )
 
     IO.puts("")
@@ -162,17 +162,17 @@ defmodule DoIt.Output do
   end
 
   def print_errors(errors) when is_list(errors) do
-    IO.puts("error(s):\n#{errors |> Enum.map(fn error -> "  * #{error}" end) |> Enum.join("\n")}")
+    IO.puts("error(s):\n#{errors |> Enum.map_join("\n", fn error -> "  * #{error}" end)}")
   end
 
   def print_errors(error), do: IO.puts(error)
 
   def print_invalid_options(command, invalid_options) do
     IO.puts(
-      "invalid option(s) for command #{command}:\n#{invalid_options |> Enum.map(fn
+      "invalid option(s) for command #{command}:\n#{invalid_options |> Enum.map_join("\n", fn
         {option, nil} -> "  * #{option} without value"
         {option, value} -> "  * #{option} with #{value}"
-      end) |> Enum.join("\n")}"
+      end)}"
     )
   end
 end
