@@ -1,5 +1,7 @@
 defmodule DoIt.Output do
-  @moduledoc false
+  @moduledoc """
+  This module formats command help outputs.
+  """
 
   alias DoIt.{Argument, Option}
 
@@ -8,11 +10,11 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.longer_name([%{name: "great"}, %{name: "greatest"}])
-    8
+      iex> DoIt.Output.longer_name([%{name: "great"}, %{name: "greatest"}])
+      8
 
-    iex> DoIt.Output.longer_name([%{name: "Elixir"}, %{name: "Erlang"}, %{name: "DoIt"}, %{name: "OTP"}])
-    6
+      iex> DoIt.Output.longer_name([%{name: "Elixir"}, %{name: "Erlang"}, %{name: "DoIt"}, %{name: "OTP"}])
+      6
   """
   def longer_name(list) do
     list
@@ -26,8 +28,8 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_argument_name(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"}, 15)
-    "verbose        "
+      iex> DoIt.Output.format_argument_name(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"}, 15)
+      "verbose        "
   """
   def format_argument_name(%Argument{name: name}, align),
     do: "#{String.pad_trailing(Atom.to_string(name), align)}"
@@ -37,8 +39,8 @@ defmodule DoIt.Output do
 
   ## Example
 
-    iex> DoIt.Output.format_argument_description(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
-    "Makes the command verbose"
+      iex> DoIt.Output.format_argument_description(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+      "Makes the command verbose"
   """
   def format_argument_description(%Argument{description: description}), do: description
 
@@ -47,14 +49,14 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
-    " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
+      iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
+      " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
 
-    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
-    ""
+      iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+      ""
 
-    iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
-    " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
+      iex> DoIt.Output.format_argument_allowed_values(%DoIt.Argument{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
+      " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
   """
   def format_argument_allowed_values(%Argument{allowed_values: nil}), do: ""
 
@@ -69,11 +71,11 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_option_alias(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
-    "   "
+      iex> DoIt.Output.format_option_alias(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
+      "   "
 
-    iex> DoIt.Output.format_option_alias(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: :h})
-    "-h,"
+      iex> DoIt.Output.format_option_alias(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: :h})
+      "-h,"
   """
   def format_option_alias(%Option{alias: nil}), do: "   "
   def format_option_alias(%Option{alias: alias}), do: "-#{Atom.to_string(alias)},"
@@ -83,11 +85,11 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_option_name(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil}, 10)
-    "--help      "
+      iex> DoIt.Output.format_option_name(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil}, 10)
+      "--help      "
 
-    iex> DoIt.Output.format_option_name(%DoIt.Option{name: :log_level, type: :string, description: "Set the logging level", alias: nil}, 12)
-    "--log-level   "
+      iex> DoIt.Output.format_option_name(%DoIt.Option{name: :log_level, type: :string, description: "Set the logging level", alias: nil}, 12)
+      "--log-level   "
   """
   def format_option_name(%Option{name: name}, align),
     do: "--#{name |> Atom.to_string() |> String.replace("_", "-") |> String.pad_trailing(align)}"
@@ -97,8 +99,8 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_option_description(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
-    "Shows the help command"
+      iex> DoIt.Output.format_option_description(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
+      "Shows the help command"
   """
   def format_option_description(%Option{description: description}), do: description
 
@@ -107,14 +109,14 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_option_default(%DoIt.Option{name: :log_level, type: :string, description: "Set the logging level", alias: nil, default: "warn"})
-    " (Default: \\"warn\\")"
+      iex> DoIt.Output.format_option_default(%DoIt.Option{name: :log_level, type: :string, description: "Set the logging level", alias: nil, default: "warn"})
+      " (Default: \\"warn\\")"
 
-    iex> DoIt.Output.format_option_default(%DoIt.Option{name: :skip_lines, type: :integer, description: "Lines to skip", alias: nil, default: 10})
-    " (Default: 10)"
+      iex> DoIt.Output.format_option_default(%DoIt.Option{name: :skip_lines, type: :integer, description: "Lines to skip", alias: nil, default: 10})
+      " (Default: 10)"
 
-    iex> DoIt.Output.format_option_default(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
-    ""
+      iex> DoIt.Output.format_option_default(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
+      ""
   """
   def format_option_default(%Option{default: nil}), do: ""
 
@@ -129,14 +131,14 @@ defmodule DoIt.Output do
 
   ## Examples
 
-    iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
-    " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
+      iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
+      " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
 
-    iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :verbose, type: :boolean, description: "Makes the command verbose"})
-    ""
+      iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+      ""
 
-    iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
-    " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
+      iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
+      " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
   """
   def format_option_allowed_values(%Option{type: :string, allowed_values: allowed_values}),
     do: " (Allowed Values: \"#{Enum.join(allowed_values, "\", \"")}\")"

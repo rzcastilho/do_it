@@ -7,6 +7,20 @@ Elixir Command Line Interface Framework.
 
 A framework that helps to develop command line tools with Elixir.
 
+## Installation
+
+The package can be installed by adding `do_it` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:do_it, "~> 0.4.0"}
+  ]
+end
+```
+
+## Usage
+
 **_Do It_** have two main components:
 
   * `DoIt.Command` - represents a single command.
@@ -39,7 +53,7 @@ end
 
 A `help` option is automatically added to the command to describe its usage.
 
-```shell script
+```shell
 $ ./cli hello --help
 
 Usage: cli hello [OPTIONS] <message>
@@ -69,7 +83,7 @@ end
 
 ### MainCommand
 
-It generates functions matching all defined commands in the project, delegating the call to the matched command.
+It's the entrypoint of your CLI, it generates functions matching all defined commands in the project, delegating the call to the matched command.
 
 A `MainCommand` could be defined as follows:
 
@@ -80,16 +94,141 @@ defmodule Cli do
 end
 ```
 
-## Installation
+## Package
 
-The package can be installed by adding `do_it` to your list of dependencies in `mix.exs`:
+There are two ways to generate the binaries.
+
+- [escript](https://hexdocs.pm/mix/Mix.Tasks.Escript.Build.html)
+- [burrito-elixir](https://github.com/burrito-elixir/burrito)
+
+### escript
+
+To generate an application using the escript, you have to add a `:escript` key with the `:main_module` option to your project properties in your `mix.exs` file.
+
+The `:main_module` is the module that you defined as `DoIt.MainCommand`.
 
 ```elixir
-def deps do
-  [
-    {:do_it, "~> 0.2.0"}
-  ]
+...
+  def project do
+    [
+      app: :hello_world,
+      version: "0.1.0",
+      elixir: "~> 1.14",
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      escript: [main_module: Cli]
+    ]
+  end
+...
+```
+
+Build the binary running the mix task bellow.
+
+```shell
+$ mix escript.build
+==> do_it
+Compiling 4 files (.ex)
+Generated do_it app
+==> hello_world
+Compiling 1 file (.ex)
+Generated escript hello_world with MIX_ENV=dev
+```
+
+A binary with the application name will be generated in the project root.
+
+```shell
+$ ./hello_world help                                                                                                                                                     ─╯
+
+Usage: hello_world COMMAND
+
+My useless CLI
+
+Commands:
+  say     Useless hello command
+```
+
+### burrito-elixir
+
+> #### Experimental {: .warning}
+>
+> See the elixir-burrito [readme](https://github.com/burrito-elixir/burrito) about some limitations and other configurations.
+
+To configure the application to use the `burrito-elixir` you have to add the `burrito-elixir` dependency in your project, add the `:mod` property in the `application` function, and the `:releases` key with the releases configuration to your project properties in you `mix.exs` file.
+
+The `:mod` property value is the module that you defined as `DoIt.MainCommand`.
+
+```elixir
+defmodule CoinGeckoCli.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :coin_gecko_cli,
+      version: "0.1.0",
+      elixir: "~> 1.14",
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      releases: releases()
+    ]
+  end
+
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    [
+      extra_applications: [:logger],
+      mod: {CoinGeckoCli, []}
+    ]
+  end
+
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      {:tesla, "~> 1.7"},
+      {:jason, "~> 1.4"},
+      {:do_it, "~> 0.4"},
+      {:burrito, github: "burrito-elixir/burrito"},
+      {:tableize, "~> 0.1.0"}
+    ]
+  end
+
+  def releases do
+    [
+      coin_gecko_cli: [
+        steps: [:assemble, &Burrito.wrap/1],
+        burrito: [
+          targets: [
+            macos: [os: :darwin, cpu: :x86_64],
+            linux: [os: :linux, cpu: :x86_64],
+            windows: [os: :windows, cpu: :x86_64]
+          ],
+        ]
+      ]
+    ]
+  end
 end
+```
+
+Generate the binaries using the mix task bellow, a binary of each target will be generated in the `burrito_out` folder of your root application.
+
+```shell
+$ MIX_ENV=prod mix release
+...
+...
+...
+$ cd burrito_out
+$ ls -c1                                                                                                                                                                 ─╯
+coin_gecko_cli_linux
+coin_gecko_cli_macos
+coin_gecko_cli_windows
+
+$ ./coin_gecko_cli_linux help                                                                                                                                            ─╯
+
+Usage: coin_gecko_cli COMMAND
+
+CoinGecko CLI
+
+Commands:
+  list     List assets
 ```
 
 ## License
