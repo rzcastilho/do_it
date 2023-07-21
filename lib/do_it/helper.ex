@@ -8,26 +8,26 @@ defmodule DoIt.Helper do
 
   ## Examples
 
-    iex> DoIt.Helper.validate_list_type([0, 1, 2, 3], :integer)
-    true
+      iex> DoIt.Helper.validate_list_type([0, 1, 2, 3], :integer)
+      true
 
-    iex> DoIt.Helper.validate_list_type([0, 1, 2.1, 3], :integer)
-    false
+      iex> DoIt.Helper.validate_list_type([0, 1, 2.1, 3], :integer)
+      false
 
-    iex> DoIt.Helper.validate_list_type([0.1, 1.1, 2.1, 3.1], :float)
-    true
+      iex> DoIt.Helper.validate_list_type([0.1, 1.1, 2.1, 3.1], :float)
+      true
 
-    iex> DoIt.Helper.validate_list_type([0.1, 1.1, 2, 3.1], :float)
-    false
+      iex> DoIt.Helper.validate_list_type([0.1, 1.1, 2, 3.1], :float)
+      false
 
-    iex> DoIt.Helper.validate_list_type(["warn", "error", "info", "debug"], :string)
-    true
+      iex> DoIt.Helper.validate_list_type(["warn", "error", "info", "debug"], :string)
+      true
 
-    iex> DoIt.Helper.validate_list_type(["warn", "error", "info", 0], :string)
-    false
+      iex> DoIt.Helper.validate_list_type(["warn", "error", "info", 0], :string)
+      false
 
-    iex> DoIt.Helper.validate_list_type(["warn", "error", "info", "debug"], :unknown)
-    false
+      iex> DoIt.Helper.validate_list_type(["warn", "error", "info", "debug"], :unknown)
+      false
   """
   def validate_list_type(list, type) do
     case type do

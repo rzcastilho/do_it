@@ -1,5 +1,7 @@
 defmodule DoIt.Option do
-  @moduledoc false
+  @moduledoc """
+  This module parse and validate options.
+  """
 
   import DoIt.Helper, only: [validate_list_type: 2]
 
