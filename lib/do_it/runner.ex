@@ -1,5 +1,5 @@
 defmodule DoIt.Runner do
   @moduledoc false
 
-  @callback run(List.t(), List.t(), Map.t()) :: any()
+  @callback run(Map.t(), Map.t(), Map.t()) :: any()
 end

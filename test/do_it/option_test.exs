@@ -329,6 +329,11 @@ defmodule DoIt.OptionTest do
 
   test "valid input value option - float" do
     option = %Option{name: :test, type: :float, description: "Test"}
+    assert {%Option{}, 11.1} = Option.validate_input_value({option, 11.1})
+  end
+
+  test "valid input value option - valid string float" do
+    option = %Option{name: :test, type: :float, description: "Test"}
     assert {%Option{}, 11.1} = Option.validate_input_value({option, "11.1"})
   end
 
@@ -374,6 +379,10 @@ defmodule DoIt.OptionTest do
   test "propagate error for valid input allowed_values options", %{option: option} do
     assert {%Option{}, {:error, _}} =
              Option.validate_input_allowed_values({option, {:error, "invalid option"}})
+  end
+
+  test "valid input when there are no defined options" do
+    assert {:ok, []} = Option.validate_input([], {})
   end
 
   test "invalid input options", %{options: options, parsed: parsed} do

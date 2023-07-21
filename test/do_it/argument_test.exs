@@ -134,6 +134,11 @@ defmodule DoIt.ArgumentTest do
 
   test "valid input value argument - integer" do
     argument = %Argument{name: :test, type: :integer, description: "Test"}
+    assert {%Argument{}, 10} = Argument.validate_input_value({argument, 10})
+  end
+
+  test "valid input value argument - valid string integer" do
+    argument = %Argument{name: :test, type: :integer, description: "Test"}
     assert {%Argument{}, 10} = Argument.validate_input_value({argument, "10"})
   end
 
@@ -143,6 +148,11 @@ defmodule DoIt.ArgumentTest do
   end
 
   test "valid input value argument - float" do
+    argument = %Argument{name: :test, type: :float, description: "Test"}
+    assert {%Argument{}, 11.1} = Argument.validate_input_value({argument, 11.1})
+  end
+
+  test "valid input value argument - valid string float" do
     argument = %Argument{name: :test, type: :float, description: "Test"}
     assert {%Argument{}, 11.1} = Argument.validate_input_value({argument, "11.1"})
   end
@@ -191,6 +201,10 @@ defmodule DoIt.ArgumentTest do
   test "propagate error for valid input allowed_values arguments", %{argument: argument} do
     assert {%Argument{}, {:error, _}} =
              Argument.validate_input_allowed_values({argument, {:error, "invalid argument"}})
+  end
+
+  test "valid input when there are no defined arguments" do
+    assert {:ok, []} = Argument.validate_input([], {})
   end
 
   test "invalid input arguments", %{arguments: arguments, parsed: parsed} do

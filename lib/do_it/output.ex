@@ -4,17 +4,17 @@ defmodule DoIt.Output do
   alias DoIt.{Argument, Option}
 
   @doc """
-  It gets the length of the lengthiest name attribute.
+  It gets the length of the longer name attribute.
 
   ## Examples
 
-    iex> DoIt.Output.lengthiest_name([%{name: "great"}, %{name: "greatest"}])
+    iex> DoIt.Output.longer_name([%{name: "great"}, %{name: "greatest"}])
     8
 
-    iex> DoIt.Output.lengthiest_name([%{name: "Elixir"}, %{name: "Erlang"}, %{name: "DoIt"}, %{name: "OTP"}])
+    iex> DoIt.Output.longer_name([%{name: "Elixir"}, %{name: "Erlang"}, %{name: "DoIt"}, %{name: "OTP"}])
     6
   """
-  def lengthiest_name(list) do
+  def longer_name(list) do
     list
     |> Enum.map(fn %{name: name} -> "#{name}" end)
     |> Enum.max_by(&String.length/1)
@@ -64,13 +64,58 @@ defmodule DoIt.Output do
   def format_argument_allowed_values(%Argument{allowed_values: allowed_values}),
     do: " (Allowed Values: #{Enum.join(allowed_values, ", ")})"
 
+  @doc """
+  It formats the given `DoIt.Option` alias attribute.
+
+  ## Examples
+
+    iex> DoIt.Output.format_option_alias(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
+    "   "
+
+    iex> DoIt.Output.format_option_alias(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: :h})
+    "-h,"
+  """
   def format_option_alias(%Option{alias: nil}), do: "   "
   def format_option_alias(%Option{alias: alias}), do: "-#{Atom.to_string(alias)},"
 
+  @doc """
+  It formats the given `DoIt.Option` name attribute with spaces on the right, accordingly with the `align` parameter.
+
+  ## Examples
+
+    iex> DoIt.Output.format_option_name(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil}, 10)
+    "--help      "
+
+    iex> DoIt.Output.format_option_name(%DoIt.Option{name: :log_level, type: :string, description: "Set the logging level", alias: nil}, 12)
+    "--log-level   "
+  """
   def format_option_name(%Option{name: name}, align),
     do: "--#{name |> Atom.to_string() |> String.replace("_", "-") |> String.pad_trailing(align)}"
 
+  @doc """
+  It returns the description from `DoIt.Option`.
+
+  ## Examples
+
+    iex> DoIt.Output.format_option_description(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
+    "Shows the help command"
+  """
   def format_option_description(%Option{description: description}), do: description
+
+  @doc """
+  It formats the given `DoIt.Option` default attribute.
+
+  ## Examples
+
+    iex> DoIt.Output.format_option_default(%DoIt.Option{name: :log_level, type: :string, description: "Set the logging level", alias: nil, default: "warn"})
+    " (Default: \\"warn\\")"
+
+    iex> DoIt.Output.format_option_default(%DoIt.Option{name: :skip_lines, type: :integer, description: "Lines to skip", alias: nil, default: 10})
+    " (Default: 10)"
+
+    iex> DoIt.Output.format_option_default(%DoIt.Option{name: :help, type: :boolean, description: "Shows the help command", alias: nil})
+    ""
+  """
   def format_option_default(%Option{default: nil}), do: ""
 
   def format_option_default(%Option{type: :string, default: default}),
@@ -79,6 +124,20 @@ defmodule DoIt.Output do
   def format_option_default(%Option{default: default}), do: " (Default: #{default})"
   def format_option_allowed_values(%Option{allowed_values: nil}), do: ""
 
+  @doc """
+  It returns the allowed values from the given `DoIt.Option`.
+
+  ## Examples
+
+    iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :op, type: :string, description: "Operation", allowed_values: ["+", "-", "*", "/"]})
+    " (Allowed Values: \\"+\\", \\"-\\", \\"*\\", \\"/\\")"
+
+    iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :verbose, type: :boolean, description: "Makes the command verbose"})
+    ""
+
+    iex> DoIt.Output.format_option_allowed_values(%DoIt.Option{name: :number, type: :integer, description: "Numerical digit", allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]})
+    " (Allowed Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"
+  """
   def format_option_allowed_values(%Option{type: :string, allowed_values: allowed_values}),
     do: " (Allowed Values: \"#{Enum.join(allowed_values, "\", \"")}\")"
 
@@ -99,7 +158,7 @@ defmodule DoIt.Output do
     IO.puts("")
 
     IO.puts("Commands:")
-    align = lengthiest_name(commands)
+    align = longer_name(commands)
 
     for %{name: name, description: description} <- commands do
       IO.puts("  #{String.pad_trailing(name, align)}     #{description}")
@@ -120,7 +179,7 @@ defmodule DoIt.Output do
     IO.puts(
       "Usage: #{app} #{command}" <>
         "#{if Enum.empty?(options), do: " ", else: " [OPTIONS] "}" <>
-        "#{arguments |> Enum.reverse() |> Enum.map(fn %{name: name} -> "<#{name}>" end) |> Enum.join(" ")}"
+        "#{arguments |> Enum.reverse() |> Enum.map_join(" ", fn %{name: name} -> "<#{name}>" end)}"
     )
 
     IO.puts("")
@@ -129,7 +188,7 @@ defmodule DoIt.Output do
     IO.puts("")
 
     if !Enum.empty?(arguments) do
-      align = lengthiest_name(arguments)
+      align = longer_name(arguments)
       IO.puts("Arguments:")
 
       for argument <- Enum.reverse(arguments) do
@@ -144,7 +203,7 @@ defmodule DoIt.Output do
     end
 
     if !Enum.empty?(options) do
-      align = lengthiest_name(options)
+      align = longer_name(options)
       IO.puts("Options:")
 
       for option <- Enum.reverse(options) do
@@ -162,17 +221,17 @@ defmodule DoIt.Output do
   end
 
   def print_errors(errors) when is_list(errors) do
-    IO.puts("error(s):\n#{errors |> Enum.map(fn error -> "  * #{error}" end) |> Enum.join("\n")}")
+    IO.puts("error(s):\n#{errors |> Enum.map_join("\n", fn error -> "  * #{error}" end)}")
   end
 
   def print_errors(error), do: IO.puts(error)
 
   def print_invalid_options(command, invalid_options) do
     IO.puts(
-      "invalid option(s) for command #{command}:\n#{invalid_options |> Enum.map(fn
+      "invalid option(s) for command #{command}:\n#{invalid_options |> Enum.map_join("\n", fn
         {option, nil} -> "  * #{option} without value"
         {option, value} -> "  * #{option} with #{value}"
-      end) |> Enum.join("\n")}"
+      end)}"
     )
   end
 end

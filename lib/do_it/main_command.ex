@@ -82,7 +82,22 @@ defmodule DoIt.MainCommand do
         )
       end
 
-      def main(["version" | _]), do: IO.inspect(@version)
+      gen_app_callback? =
+        case Code.ensure_compiled(Burrito.Util.Args) do
+          {:module, _module} -> true
+          {:error, _reason} -> false
+        end
+
+      if gen_app_callback? do
+        def start(_type, _args) do
+          Burrito.Util.Args.get_arguments()
+          |> main()
+
+          System.halt(0)
+        end
+      end
+
+      def main(["version" | _]), do: IO.puts("#{inspect(@version)}")
       def main(["help" | _]), do: help()
 
       @main_functions
@@ -188,8 +203,7 @@ defmodule DoIt.MainCommand do
 
   def find_project_func([]), do: []
 
-  def find_module_attribute([{:@, _, [{attribute, _, value}]} | _], attr)
-      when attribute == attr do
+  def find_module_attribute([{:@, _, [{attribute, _, value}]} | _], attribute) do
     value
   end
 
