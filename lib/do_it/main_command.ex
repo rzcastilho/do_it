@@ -9,6 +9,10 @@ defmodule DoIt.MainCommand do
 
     main_functions =
       commands
+      |> Enum.filter(fn
+        {_name, %{sub_commands: _sub_commands}} -> false
+        _ -> true
+      end)
       |> Enum.map(fn
         {name, %{command: command}} -> {name, String.downcase(command)}
         {name, _options} -> {name, name |> String.split(".") |> List.last() |> String.downcase()}
@@ -30,6 +34,10 @@ defmodule DoIt.MainCommand do
 
     command_descriptions =
       commands
+      |> Enum.filter(fn
+        {_name, %{sub_commands: _sub_commands}} -> false
+        _ -> true
+      end)
       |> Enum.map(fn
         {_, %{command: command, description: description}} ->
           quote do

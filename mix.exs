@@ -4,7 +4,7 @@ defmodule DoIt.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/rzcastilho/do_it"
-  @version "0.4.2"
+  @version "0.5.0"
 
   def project do
     [
@@ -37,19 +37,19 @@ defmodule DoIt.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:dialyxir, "~> 1.2", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.15", only: :test},
-      {:credo, "~> 1.6"},
+      {:dialyxir, "~> 1.3", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.16", only: :test},
+      {:credo, "~> 1.7"},
       {:jason, "~> 1.4"}
     ]
   end
 
   defp description() do
     """
-    Elixir Command Line Interface Framework.
+    Elixir Command Line Interface Library.
 
-    A framework that helps to develop command line tools with Elixir.
+    A library that helps to develop CLI tools with Elixir.
     """
   end
 

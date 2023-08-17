@@ -6,10 +6,9 @@ defmodule DoIt.Command do
   defmacro __using__(opts) do
     quote do
       import unquote(__MODULE__), only: [argument: 3, argument: 4, option: 3, option: 4]
-      @behaviour DoIt.Runner
-      alias DoIt.Commfig
 
       Module.register_attribute(__MODULE__, :command, accumulate: false, persist: true)
+      Module.register_attribute(__MODULE__, :sub_commands, accumulate: false, persist: false)
 
       case List.keyfind(unquote(opts), :command, 0) do
         {:command, command} ->
@@ -33,6 +32,16 @@ defmodule DoIt.Command do
 
         _ ->
           raise(DoIt.CommandDefinitionError, "description is required for command definition")
+      end
+
+      case List.keyfind(unquote(opts), :sub_commands, 0) do
+        {:sub_commands, sub_commands} ->
+          Module.put_attribute(__MODULE__, :sub_commands, sub_commands)
+          @behaviour DoIt.Dispatcher
+          IO.puts("Sub commands - DISPATCHER - #{inspect(__MODULE__)}")
+        _ ->
+          @behaviour DoIt.Runner
+          IO.puts("Command - RUNNER - #{inspect(__MODULE__)}")
       end
 
       Module.register_attribute(__MODULE__, :arguments, accumulate: true)
@@ -66,40 +75,51 @@ defmodule DoIt.Command do
         )
       end
 
-      def do_it(args, context) do
-        case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
-          {options, arguments, []} ->
-            if {:help, true} in options do
-              help()
-            else
-              with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
-                   {:ok, parsed_options} <- Option.parse_input(@options, options),
-                   {:ok, validated_arguments} <-
-                     Argument.validate_input(@arguments, parsed_arguments),
-                   {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
-                run(
-                  Enum.into(validated_arguments, %{}),
-                  Enum.into(validated_options, %{}),
-                  context
-                )
-              else
-                {:error, message} ->
-                  DoIt.Output.print_errors(message)
-                  help()
-              end
-            end
+      case @sub_commands do
+        nil ->
+          def do_it(args, context) do
+                case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
+                  {options, arguments, []} ->
+                    if {:help, true} in options do
+                      help()
+                    else
+                        with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
+                             {:ok, parsed_options} <- Option.parse_input(@options, options),
+                             {:ok, validated_arguments} <-
+                        Argument.validate_input(@arguments, parsed_arguments),
+                        {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
+                          run(
+                            Enum.into(validated_arguments, %{}),
+                            Enum.into(validated_options, %{}),
+                            context
+                          )
+                        else
+                          {:error, message} ->
+                            DoIt.Output.print_errors(message)
+                          help()
+                        end
+                    end
 
-          {_, _, invalid_options} ->
-            DoIt.Output.print_invalid_options(@command, invalid_options)
+                  {_, _, invalid_options} ->
+                    DoIt.Output.print_invalid_options(@command, invalid_options)
 
-            help()
-        end
+                    help()
+                end
+          end
+        _ ->
+          def do_it(args, context) do
+            IO.puts("Handle subcommands - #{inspect(@sub_commands)}")
+          end
       end
+end
+
     end
-  end
 
   defmacro argument(name, type, description, opts \\ []) do
     quote do
+      if Module.get_attribute(__MODULE__, :sub_commands) != nil do
+        raise(DoIt.CommandDefinitionError, "arguments are not allowed for commands with sub_commands property")
+      end
       argument =
         struct(
           %Argument{name: unquote(name), type: unquote(type), description: unquote(description)},
