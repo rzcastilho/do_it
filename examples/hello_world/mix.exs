@@ -27,6 +27,6 @@ defmodule HelloWorld.MixProject do
   end
 
   defp escript do
-    [main_module: Cli]
+    [main_module: HelloWorld]
   end
 end
