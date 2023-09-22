@@ -39,8 +39,8 @@ defmodule CoinGeckoCli.MixProject do
           targets: [
             macos: [os: :darwin, cpu: :x86_64],
             linux: [os: :linux, cpu: :x86_64],
-            #windows: [os: :windows, cpu: :x86_64]
-          ],
+            windows: [os: :windows, cpu: :x86_64]
+          ]
         ]
       ]
     ]
