@@ -1,5 +1,4 @@
-![CI](https://github.com/rzcastilho/do_it/workflows/CI/badge.svg)
-![Coverage Status](https://coveralls.io/repos/github/rzcastilho/do_it/badge.svg)
+[![Build Status](https://github.com/rzcastilho/do_it/workflows/CI/badge.svg)](https://github.com/rzcastilho/do_it/actions) [![Hex.pm](https://img.shields.io/hexpm/v/do_it.svg)](https://hex.pm/packages/do_it) [![Coverage Status](https://coveralls.io/repos/github/rzcastilho/do_it/badge.svg)](https://coveralls.io/github/rzcastilho/do_it) [![Documentation](https://img.shields.io/badge/documentation-gray)](https://hexdocs.pm/do_it/)
 
 # Do It
 
@@ -14,7 +13,7 @@ The package can be installed by adding `do_it` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:do_it, "~> 0.4.0"}
+    {:do_it, "~> 0.5.0"}
   ]
 end
 ```
@@ -83,7 +82,7 @@ end
 
 ### MainCommand
 
-It's the entrypoint of your CLI, it generates functions matching all defined commands in the project, delegating the call to the matched command.
+It's the entrypoint of your CLI, it generates functions matching all declared commands in that module, delegating the call to the matched command.
 
 A `MainCommand` could be defined as follows:
 
@@ -91,6 +90,10 @@ A `MainCommand` could be defined as follows:
 defmodule Cli do
   use DoIt.MainCommand,
     description: "My useless CLI"
+
+  command(Hello.Say)
+  command(Hello.Config)
+
 end
 ```
 
