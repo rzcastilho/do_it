@@ -1,10 +1,11 @@
 defmodule HelloWorld.Template.Set do
   use DoIt.Command,
-    description: "Set template"
+    description: "Set message template"
 
   argument(:content, :string, "Template content")
 
-  def run(%{content: content}, _, _) do
-    IO.puts("Set template:\n#{content}")
+  def run(%{content: content}, _, context) do
+    IO.inspect(context)
+    DoIt.Commfig.set("default_template", content)
   end
 end

@@ -1,13 +1,8 @@
 defmodule HelloWorld.Template do
   use DoIt.Command,
-    description: "Manage HelloWorld Template",
-    sub_commands: [
-      HelloWorld.Template.Set,
-      HelloWorld.Template.Unset,
-      HelloWorld.Template.Default
-    ]
+    description: "Manage HelloWorld Template"
 
-  def next(%{}, %{}) do
-    %{}
-  end
+  subcommand(HelloWorld.Template.Set)
+  subcommand(HelloWorld.Template.Unset)
+  subcommand(HelloWorld.Template.Show)
 end

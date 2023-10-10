@@ -5,11 +5,6 @@ defmodule DoIt.Command do
 
   defmacro __using__(opts) do
     quote do
-      import unquote(__MODULE__), only: [argument: 3, argument: 4, option: 3, option: 4]
-
-      Module.register_attribute(__MODULE__, :command, accumulate: false, persist: true)
-      Module.register_attribute(__MODULE__, :sub_commands, accumulate: false, persist: false)
-
       case List.keyfind(unquote(opts), :command, 0) do
         {:command, command} ->
           Module.put_attribute(__MODULE__, :command, command)
@@ -34,15 +29,12 @@ defmodule DoIt.Command do
           raise(DoIt.CommandDefinitionError, "description is required for command definition")
       end
 
-      case List.keyfind(unquote(opts), :sub_commands, 0) do
-        {:sub_commands, sub_commands} ->
-          Module.put_attribute(__MODULE__, :sub_commands, sub_commands)
-          @behaviour DoIt.Dispatcher
-          IO.puts("Sub commands - DISPATCHER - #{inspect(__MODULE__)}")
-        _ ->
-          @behaviour DoIt.Runner
-          IO.puts("Command - RUNNER - #{inspect(__MODULE__)}")
-      end
+      Module.register_attribute(__MODULE__, :subcommands, accumulate: true, persist: false)
+
+      Module.register_attribute(__MODULE__, :subcommand_descriptions,
+        accumulate: true,
+        persist: false
+      )
 
       Module.register_attribute(__MODULE__, :arguments, accumulate: true)
       Module.register_attribute(__MODULE__, :options, accumulate: true)
@@ -57,69 +49,124 @@ defmodule DoIt.Command do
 
       Module.put_attribute(__MODULE__, :strict, {:help, :boolean})
 
+      import unquote(__MODULE__),
+        only: [subcommand: 1, argument: 3, argument: 4, option: 3, option: 4]
+
       @before_compile unquote(__MODULE__)
     end
   end
 
-  defmacro __before_compile__(_) do
+  defmacro __before_compile__(env) do
+    compile(Module.get_attribute(env.module, :subcommands), __CALLER__)
+  end
+
+  def compile([], caller) do
+    caller_module = caller.module
+
     quote do
+      @behaviour DoIt.Runner
+      alias DoIt.Commfig
+
       def command(), do: {@command, @description}
 
-      def help() do
+      def help(%{breadcrumb: breadcrumb}) do
         DoIt.Output.print_help(
-          app: Application.get_application(__MODULE__),
-          command: @command,
+          commands: breadcrumb ++ [unquote(caller_module)],
           description: @description,
           arguments: @arguments,
           options: @options
         )
       end
 
-      case @sub_commands do
-        nil ->
-          def do_it(args, context) do
-                case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
-                  {options, arguments, []} ->
-                    if {:help, true} in options do
-                      help()
-                    else
-                        with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
-                             {:ok, parsed_options} <- Option.parse_input(@options, options),
-                             {:ok, validated_arguments} <-
-                        Argument.validate_input(@arguments, parsed_arguments),
-                        {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
-                          run(
-                            Enum.into(validated_arguments, %{}),
-                            Enum.into(validated_options, %{}),
-                            context
-                          )
-                        else
-                          {:error, message} ->
-                            DoIt.Output.print_errors(message)
-                          help()
-                        end
-                    end
+      def do_it(args, context) do
+        case OptionParser.parse(args, strict: @strict, aliases: @aliases) do
+          {options, arguments, []} ->
+            if {:help, true} in options do
+              help(context)
+            else
+              with {:ok, parsed_arguments} <- Argument.parse_input(@arguments, arguments),
+                   {:ok, parsed_options} <- Option.parse_input(@options, options),
+                   {:ok, validated_arguments} <-
+                     Argument.validate_input(@arguments, parsed_arguments),
+                   {:ok, validated_options} <- Option.validate_input(@options, parsed_options) do
+                run(
+                  Enum.into(validated_arguments, %{}),
+                  Enum.into(validated_options, %{}),
+                  context
+                )
+              else
+                {:error, message} ->
+                  DoIt.Output.print_errors(message)
+                  help(context)
+              end
+            end
 
-                  {_, _, invalid_options} ->
-                    DoIt.Output.print_invalid_options(@command, invalid_options)
+          {_, _, invalid_options} ->
+            DoIt.Output.print_invalid_options(@command, invalid_options)
 
-                    help()
-                end
-          end
-        _ ->
-          def do_it(args, context) do
-            IO.puts("Handle subcommands - #{inspect(@sub_commands)}")
-          end
+            help(context)
+        end
       end
-end
-
     end
+  end
+
+  def compile(subcommands, caller) do
+    caller_module = caller.module
+
+    subcommands_ast =
+      for module <- subcommands do
+        with {subcommand, _} <- module.command() do
+          quote do
+            def do_it([unquote(subcommand) | args], context) do
+              %{breadcrumb: breadcrumb} = context
+
+              apply(String.to_existing_atom("#{unquote(module)}"), :do_it, [
+                args,
+                %{context | breadcrumb: breadcrumb ++ [unquote(caller.module)]}
+              ])
+            end
+          end
+        end
+      end
+
+    quote do
+      def command(), do: {@command, @description}
+
+      def help(%{breadcrumb: breadcrumb}) do
+        DoIt.Output.print_help(
+          commands: breadcrumb ++ [unquote(caller_module)],
+          description: @description,
+          subcommands: @subcommand_descriptions
+        )
+      end
+
+      def do_it(["--help" | _], context), do: help(context)
+
+      unquote(subcommands_ast)
+
+      def do_it([unknown | _], context) do
+        IO.puts("invalid subcommand #{unknown}")
+        help(context)
+      end
+
+      def do_it([], context) do
+        IO.puts("no subcommand provided")
+        help(context)
+      end
+    end
+  end
+
+  defmacro subcommand(module) do
+    quote do
+      @subcommands unquote(module)
+      with {name, description} <- unquote(module).command() do
+        @subcommand_descriptions %{name: name, description: description}
+      end
+    end
+  end
 
   defmacro argument(name, type, description, opts \\ []) do
     quote do
-      if Module.get_attribute(__MODULE__, :sub_commands) != nil do
-        raise(DoIt.CommandDefinitionError, "arguments are not allowed for commands with sub_commands property")
-      end
       argument =
         struct(
           %Argument{name: unquote(name), type: unquote(type), description: unquote(description)},

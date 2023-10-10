@@ -167,19 +167,57 @@ defmodule DoIt.Output do
     end
 
     IO.puts("")
+
+    IO.puts("Run '#{app} COMMAND --help' for more information on a command.")
+    IO.puts("")
   end
 
   def print_help(
-        app: app,
-        command: command,
+        commands: commands,
+        description: description,
+        subcommands: subcommands
+      ) do
+    commands_stringify =
+      commands
+      |> Enum.map(& &1.command)
+      |> Enum.map_join(&elem(&1, 0), " ")
+
+    IO.puts("")
+
+    IO.puts("Usage: #{commands_stringify} SUBCOMMAND")
+    IO.puts("")
+
+    IO.puts(description)
+    IO.puts("")
+
+    IO.puts("Subcommands:")
+    align = longer_name(subcommands)
+
+    for %{name: name, description: description} <- subcommands do
+      IO.puts("  #{String.pad_trailing(name, align)}     #{description}")
+    end
+
+    IO.puts("")
+
+    IO.puts("Run '#{commands_stringify} SUBCOMMAND --help' for more information on a subcommand.")
+    IO.puts("")
+  end
+
+  def print_help(
+        commands: commands,
         description: description,
         arguments: arguments,
         options: options
       ) do
+    commands_stringify =
+      commands
+      |> Enum.map(& &1.command)
+      |> Enum.map_join(&elem(&1, 0), " ")
+
     IO.puts("")
 
     IO.puts(
-      "Usage: #{app} #{command}" <>
+      "Usage: #{commands_stringify}" <>
         "#{if Enum.empty?(options), do: " ", else: " [OPTIONS] "}" <>
         "#{arguments |> Enum.reverse() |> Enum.map_join(" ", fn %{name: name} -> "<#{name}>" end)}"
     )

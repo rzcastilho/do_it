@@ -1,6 +1,6 @@
 defmodule DoIt.CommfigTest do
   @moduledoc false
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias DoIt.Commfig
 
@@ -47,5 +47,12 @@ defmodule DoIt.CommfigTest do
     Commfig.set("msg", "Hello World Again!")
     assert "Hello World Again!" = Commfig.get("msg")
     assert %{"msg" => "Hello World Again!"} = Commfig.get_data()
+  end
+
+  test "success unsetting key" do
+    Commfig.set("msg", "Another message!!!")
+    assert "Another message!!!" = Commfig.get("msg")
+    Commfig.unset("msg")
+    assert %{} = Commfig.get_data()
   end
 end
