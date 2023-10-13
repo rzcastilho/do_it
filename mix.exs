@@ -39,7 +39,8 @@ defmodule DoIt.MixProject do
     [
       {:dialyxir, "~> 1.3", only: :dev, runtime: false},
       {:ex_doc, "~> 0.30", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.16", only: :test},
+      {:excoveralls, "~> 0.18", only: :test},
+      {:castore, "~> 1.0", only: :test},
       {:credo, "~> 1.7"},
       {:jason, "~> 1.4"}
     ]
