@@ -2,9 +2,9 @@
 
 # Do It
 
-Elixir Command Line Interface Framework.
+Elixir Command Line Interface Library.
 
-A framework that helps to develop command line tools with Elixir.
+A library that helps to develop CLI tools with Elixir.
 
 ## Installation
 
@@ -13,7 +13,7 @@ The package can be installed by adding `do_it` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:do_it, "~> 0.5.0"}
+    {:do_it, "~> 0.6"}
   ]
 end
 ```
@@ -23,7 +23,7 @@ end
 **_Do It_** have two main components:
 
   * `DoIt.Command` - represents a single command.
-  * `DoIt.MainCommand` - find all defined commands in project and generate all functions to match all commands in a single module, must be used as `main_module` in `escript` definition.
+  * `DoIt.MainCommand` - the entrypoint of the application where you declare all the commands, must be used as `main_module` in `escript` definition.
   
 The commands `version` and `help` are automatic generated for the client.
 
@@ -31,40 +31,70 @@ The version number is obtained from `mix.exs` or option `version` in `MainComman
 
 So, if you have a client named `cli`, you can type `cli version` and `cli help` to get the version number and the list of commands respectively from the client.
 
+### MainCommand
+
+It's the entrypoint of your CLI, it generates functions matching all declared commands in that module, delegating the call to the matched command.
+
+A `MainCommand` could be defined as follows:
+
+```elixir
+defmodule HelloWorld do
+  use DoIt.MainCommand,
+    description: "HelloWorld CLI"
+
+  command(HelloWorld.Say)
+  command(HelloWorld.Template)
+end
+```
+
 ### Command
 
 We can define a new command as follows:
 
 ```elixir
-defmodule Hello do
+defmodule HelloWorld.Say do
   use DoIt.Command,
-    description: "Useless hello command"
+    description: "Say something!!!"
 
-  argument(:message, :string, "Say hello to...")
-  option(:template, :string, "Hello message template", alias: :t, default: "Hello <%= @message %>!!!")
+  argument(:message, :string, "Hello message")
+
+  option(:template, :string, "Message template", alias: :t)
 
   def run(%{message: message}, %{template: template}, _) do
-    IO.puts EEx.eval_string(template, assigns: [message: message])
+    hello(message, template)
   end
 
+  def run(%{message: message}, _, %{config: %{"default_template" => template}}) do
+    hello(message, template)
+  end
+
+  def run(_, _, context) do
+    IO.puts("Pass a template s parameter or define a default template using template set command")
+    help(context)
+  end
+
+  defp hello(message, template) do
+    IO.puts(EEx.eval_string(template, assigns: [message: message]))
+  end
 end
+
 ```
 
 A `help` option is automatically added to the command to describe its usage.
 
 ```shell
-$ ./cli hello --help
+$ ./hello_world say --help
 
-Usage: cli hello [OPTIONS] <message>
+Usage: hello_world say [OPTIONS] <message>
 
-Useless hello command
+Say something!!!
 
 Arguments:
-  message   Hello nice message
+  message   Hello message
 
 Options:
       --help       Print this help
-  -t, --template   Hello message template (Default: "Hello <%= @message %>!!!")
+  -t, --template   Message template
 ```
 
 Use `DoIt.Command` and provide a required `description`, the command name is the module name, you can override that name using the `name` option.
@@ -80,20 +110,16 @@ defmodule Hello do
 end
 ```
 
-### MainCommand
-
-It's the entrypoint of your CLI, it generates functions matching all declared commands in that module, delegating the call to the matched command.
-
-A `MainCommand` could be defined as follows:
+You can declare subcommands in a command to group them logically using the `subcommand` macro.
 
 ```elixir
-defmodule Cli do
-  use DoIt.MainCommand,
-    description: "My useless CLI"
+defmodule HelloWorld.Template do
+  use DoIt.Command,
+    description: "Manage HelloWorld Template"
 
-  command(Hello.Say)
-  command(Hello.Config)
-
+  subcommand(HelloWorld.Template.Set)
+  subcommand(HelloWorld.Template.Unset)
+  subcommand(HelloWorld.Template.Show)
 end
 ```
 

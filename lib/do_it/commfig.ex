@@ -68,6 +68,14 @@ defmodule DoIt.Commfig do
     GenServer.call(__MODULE__, {:set, [key], value})
   end
 
+  def unset(keys) when is_list(keys) do
+    GenServer.call(__MODULE__, {:unset, keys})
+  end
+
+  def unset(key) do
+    GenServer.call(__MODULE__, {:unset, [key]})
+  end
+
   def get(keys) when is_list(keys) do
     GenServer.call(__MODULE__, {:get, keys})
   end
@@ -114,6 +122,23 @@ defmodule DoIt.Commfig do
   @impl true
   def handle_call({:set, keys, value}, _from, %State{file: file, data: data} = state) do
     with new_data <- put_in(data, keys, value) do
+      Jason.encode!(new_data)
+      |> Jason.Formatter.pretty_print()
+      |> (&File.write!(file, &1)).()
+
+      {:reply, :ok, %{state | data: new_data}}
+    end
+  rescue
+    e in ArgumentError ->
+      {:reply, {:error, ArgumentError.message(e)}, state}
+
+    e in FunctionClauseError ->
+      {:reply, {:error, FunctionClauseError.message(e)}, state}
+  end
+
+  @impl true
+  def handle_call({:unset, keys}, _from, %State{file: file, data: data} = state) do
+    with {_, new_data} <- pop_in(data, keys) do
       Jason.encode!(new_data)
       |> Jason.Formatter.pretty_print()
       |> (&File.write!(file, &1)).()

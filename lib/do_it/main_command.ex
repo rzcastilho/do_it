@@ -1,6 +1,8 @@
 defmodule DoIt.MainCommand do
   @moduledoc false
 
+  alias Burrito.Util.Args, as: Burrito
+
   defmacro __using__(opts) do
     quote do
       Module.register_attribute(__MODULE__, :commands, accumulate: true, persist: false)
@@ -27,17 +29,18 @@ defmodule DoIt.MainCommand do
       end
 
       import unquote(__MODULE__), only: [command: 1]
+
       @before_compile unquote(__MODULE__)
     end
   end
 
   defmacro __before_compile__(env) do
-    compile(Module.get_attribute(env.module, :commands))
+    compile(Module.get_attribute(env.module, :commands), __CALLER__)
   end
 
   def compile([]), do: raise(DoIt.CommandDefinitionError, message: "define at least a command")
 
-  def compile(commands) do
+  def compile(commands, caller) do
     commands_ast =
       for module <- commands do
         with {command, _} <- module.command() do
@@ -47,7 +50,8 @@ defmodule DoIt.MainCommand do
                 args,
                 %{
                   env: System.get_env(),
-                  config: DoIt.Commfig.get_data()
+                  config: DoIt.Commfig.get_data(),
+                  breadcrumb: [unquote(caller.module)]
                 }
               ])
             end
@@ -56,6 +60,8 @@ defmodule DoIt.MainCommand do
       end
 
     quote do
+      def command(), do: {"#{Application.get_application(__MODULE__)}", @description}
+
       def help() do
         DoIt.Output.print_help(
           app: Application.get_application(__MODULE__),
@@ -65,14 +71,14 @@ defmodule DoIt.MainCommand do
       end
 
       gen_app_callback? =
-        case Code.ensure_compiled(Burrito.Util.Args) do
+        case Code.ensure_compiled(Burrito) do
           {:module, _module} -> true
           {:error, _reason} -> false
         end
 
       if gen_app_callback? do
         def start(_type, _args) do
-          Burrito.Util.Args.get_arguments()
+          Burrito.get_arguments()
           |> main()
 
           System.halt(0)
