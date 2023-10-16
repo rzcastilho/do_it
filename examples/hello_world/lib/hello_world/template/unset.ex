@@ -1,6 +1,6 @@
 defmodule HelloWorld.Template.Unset do
   use DoIt.Command,
-    description: "Unset template"
+    description: "Remove default message  template"
 
   def run(_, _, context) do
     IO.inspect(context)

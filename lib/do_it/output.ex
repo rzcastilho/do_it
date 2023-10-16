@@ -180,7 +180,7 @@ defmodule DoIt.Output do
     commands_stringify =
       commands
       |> Enum.map(& &1.command)
-      |> Enum.map_join(&elem(&1, 0), " ")
+      |> Enum.map_join(" ", &elem(&1, 0))
 
     IO.puts("")
 
@@ -212,7 +212,7 @@ defmodule DoIt.Output do
     commands_stringify =
       commands
       |> Enum.map(& &1.command)
-      |> Enum.map_join(&elem(&1, 0), " ")
+      |> Enum.map_join(" ", &elem(&1, 0))
 
     IO.puts("")
 

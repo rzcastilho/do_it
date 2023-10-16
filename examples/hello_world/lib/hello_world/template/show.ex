@@ -1,6 +1,6 @@
 defmodule HelloWorld.Template.Show do
   use DoIt.Command,
-    description: "Set default template"
+    description: "Show default message template"
 
   def run(_, _, %{config: %{"default_template" => template}}) do
     IO.puts("Default template:\n#{template}")
