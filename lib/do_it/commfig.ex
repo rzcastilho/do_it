@@ -3,30 +3,15 @@ defmodule DoIt.Commfig do
   use GenServer
   require Logger
 
+  @default_app_name ".do_it.json"
+
   defmodule State do
     @moduledoc false
     defstruct [:dir, :file, :data]
   end
 
-  def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename) do
-    case {dirname, filename} do
-      {nil, nil} ->
-        raise(DoIt.InitConfigError,
-          message:
-            "dirname and filename are required for the initialization of the persistent configuration"
-        )
-
-      {nil, _} ->
-        raise(DoIt.InitConfigError,
-          message: "dirname is required for the initialization of the persistent configuration"
-        )
-
-      {_, nil} ->
-        raise(DoIt.InitConfigError,
-          message: "filename is required for the initialization of the persistent configuration"
-        )
-    end
-  end
+  def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename),
+    do: start_link([System.tmp_dir(), @default_app_name])
 
   def start_link([dirname, filename]) do
     GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
