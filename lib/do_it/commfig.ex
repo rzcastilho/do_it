@@ -11,28 +11,28 @@ defmodule DoIt.Commfig do
     defstruct [:dir, :file, :data]
   end
 
-  def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename),
-    do: start_link([System.tmp_dir(), @default_app_name])
+  def start_link([dirname, filename] = args) do
+    case {dirname, filename} do
+      {nil, nil} ->
+        IO.inspect(args, label: "{nil, nil}")
+        GenServer.start_link(__MODULE__, [System.tmp_dir(), @default_app_name], name: __MODULE__)
 
-  def start_link([dirname, filename]) do
-    GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
+      {nil, filename} ->
+        IO.inspect(args, label: "{nil, filename}")
+        GenServer.start_link(__MODULE__, [System.tmp_dir(), filename], name: __MODULE__)
+
+      {dirname, nil} ->
+        IO.inspect(args, label: "{dirname, nil}")
+        GenServer.start_link(__MODULE__, [dirname, @default_app_name], name: __MODULE__)
+
+      _ ->
+        raise(
+          DoIt.InitConfigError,
+          message:
+            "dirname and filename are required for the initialization of the persistent configuration"
+        )
+    end
   end
-
-  def start_link(_),
-    do:
-      raise(
-        DoIt.InitConfigError,
-        message:
-          "dirname and filename are required for the initialization of the persistent configuration"
-      )
-
-  def start_link(),
-    do:
-      raise(
-        DoIt.InitConfigError,
-        message:
-          "dirname and filename are required for the initialization of the persistent configuration"
-      )
 
   def get_dir() do
     GenServer.call(__MODULE__, :get_dir)
