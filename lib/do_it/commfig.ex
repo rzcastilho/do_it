@@ -3,7 +3,8 @@ defmodule DoIt.Commfig do
   use GenServer
   require Logger
 
-  @default_app_name ".do_it.json"
+  @default_app_name Mix.Project.config()[:app]
+                    |> Atom.to_string()
 
   defmodule State do
     @moduledoc false
