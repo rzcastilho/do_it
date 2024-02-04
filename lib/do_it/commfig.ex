@@ -21,7 +21,6 @@ defmodule DoIt.Commfig do
         do_start(System.tmp_dir(), filename)
 
       {dirname, nil} ->
-        IO.inspect(args, label: "{dirname, nil}")
         do_start(dirname, @default_app_name)
 
       {dirname, filename} ->
