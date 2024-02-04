@@ -12,7 +12,7 @@ defmodule DoIt.Commfig do
   end
 
   @spec start_link([...]) :: :ignore | {:error, any()} | {:ok, pid()}
-  def start_link([dirname, filename] = args) do
+  def start_link([dirname, filename] = _args) do
     case {dirname, filename} do
       {nil, nil} ->
         do_start(System.tmp_dir(), @default_app_name)
