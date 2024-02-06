@@ -3,33 +3,29 @@ defmodule DoIt.Commfig do
   use GenServer
   require Logger
 
+  @default_app_name Mix.Project.config()[:app]
+                    |> Atom.to_string()
+
   defmodule State do
     @moduledoc false
     defstruct [:dir, :file, :data]
   end
 
-  def start_link([dirname, filename]) when is_nil(dirname) or is_nil(filename) do
+  @spec start_link([...]) :: :ignore | {:error, any()} | {:ok, pid()}
+  def start_link([dirname, filename] = _args) do
     case {dirname, filename} do
       {nil, nil} ->
-        raise(DoIt.InitConfigError,
-          message:
-            "dirname and filename are required for the initialization of the persistent configuration"
-        )
+        do_start(System.tmp_dir(), @default_app_name)
 
-      {nil, _} ->
-        raise(DoIt.InitConfigError,
-          message: "dirname is required for the initialization of the persistent configuration"
-        )
+      {nil, filename} ->
+        do_start(System.tmp_dir(), filename)
 
-      {_, nil} ->
-        raise(DoIt.InitConfigError,
-          message: "filename is required for the initialization of the persistent configuration"
-        )
+      {dirname, nil} ->
+        do_start(dirname, @default_app_name)
+
+      {dirname, filename} ->
+        do_start(dirname, filename)
     end
-  end
-
-  def start_link([dirname, filename]) do
-    GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
   end
 
   def start_link(_),
@@ -47,6 +43,10 @@ defmodule DoIt.Commfig do
         message:
           "dirname and filename are required for the initialization of the persistent configuration"
       )
+
+  defp do_start(dirname, filename) do
+    GenServer.start_link(__MODULE__, [dirname, filename], name: __MODULE__)
+  end
 
   def get_dir() do
     GenServer.call(__MODULE__, :get_dir)
