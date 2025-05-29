@@ -26,4 +26,4 @@ hello_world-*.tar
 /tmp/
 
 # Escript binary
-./hello_world
+hello_world

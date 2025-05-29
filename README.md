@@ -24,7 +24,7 @@ end
 
   * `DoIt.Command` - represents a single command.
   * `DoIt.MainCommand` - the entrypoint of the application where you declare all the commands, must be used as `main_module` in `escript` definition.
-  
+
 The commands `version` and `help` are automatic generated for the client.
 
 The version number is obtained from `mix.exs` or option `version` in `MainCommand`.
@@ -178,10 +178,6 @@ Commands:
 
 ### burrito-elixir
 
-> #### Experimental {: .warning}
->
-> See the elixir-burrito [readme](https://github.com/burrito-elixir/burrito) about some limitations and other configurations.
-
 To configure the application to use the `burrito-elixir` you have to add the `burrito-elixir` dependency in your project, add the `:mod` property in the `application` function, and the `:releases` key with the releases configuration to your project properties in you `mix.exs` file.
 
 The `:mod` property value is the module that you defined as `DoIt.MainCommand`.
@@ -215,7 +211,7 @@ defmodule CoinGeckoCli.MixProject do
       {:tesla, "~> 1.7"},
       {:jason, "~> 1.4"},
       {:do_it, "~> 0.4"},
-      {:burrito, github: "burrito-elixir/burrito"},
+      {:burrito, "~> 1.3"},
       {:tableize, "~> 0.1.0"}
     ]
   end
@@ -259,6 +255,115 @@ CoinGecko CLI
 Commands:
   list     List assets
 ```
+
+## Auto-completion
+
+**_Do It_** provides comprehensive shell auto-completion support for bash, fish, and zsh shells. Auto-completion helps users discover available commands, subcommands, and options without needing to remember the exact syntax.
+
+### Features
+
+- **Command completion**: Complete command and subcommand names
+- **Option completion**: Complete option flags (`--help`, `-v`, etc.)
+- **Value completion**: Complete option values when allowed values are defined
+- **Context-aware**: Completions are context-sensitive based on the current command path
+- **Multi-shell support**: Generate completion scripts for bash, fish, and zsh
+
+### Built-in Completion Commands
+
+Every DoIt CLI automatically includes completion commands:
+
+```shell
+# Generate completion script for bash
+your_cli completion bash
+
+# Generate completion script for fish
+your_cli completion fish
+
+# Generate completion script for zsh
+your_cli completion zsh
+
+# Show installation instructions
+your_cli completion install bash
+
+# Internal completion command (used by shell scripts)
+your_cli completion complete <args>
+
+# Debug completion information
+your_cli completion debug
+```
+
+### Installation
+
+#### Bash
+
+Add to your `~/.bashrc`:
+```bash
+eval "$(your_cli completion bash)"
+```
+
+Or install system-wide:
+```bash
+your_cli completion bash | sudo tee /etc/bash_completion.d/your_cli
+```
+
+#### Fish
+
+Install completion script:
+```bash
+your_cli completion fish > ~/.config/fish/completions/your_cli.fish
+```
+
+#### Zsh
+
+Add to your `~/.zshrc`:
+```bash
+eval "$(your_cli completion zsh)"
+```
+
+Make sure you have completion system initialized:
+```bash
+autoload -U compinit
+compinit
+```
+
+### Using Mix Task
+
+You can also generate completion scripts during development:
+
+```bash
+# Generate bash completion to stdout
+mix do_it.gen.completion --shell bash
+
+# Generate fish completion and save to file
+mix do_it.gen.completion --shell fish --output ~/.config/fish/completions/myapp.fish
+
+# Show installation instructions
+mix do_it.gen.completion --shell zsh --install
+
+# Specify main module explicitly
+mix do_it.gen.completion --shell bash --main-module MyApp.CLI
+```
+
+### Enhanced Option Support
+
+You can enhance option completion by specifying allowed values:
+
+```elixir
+defmodule MyApp.Deploy do
+  use DoIt.Command,
+    description: "Deploy application"
+
+  option(:environment, :string, "Target environment",
+    allowed_values: ["dev", "staging", "prod"])
+
+  option(:format, :string, "Output format",
+    allowed_values: ["json", "yaml", "table"])
+
+  def run(_args, _opts, _context), do: :ok
+end
+```
+
+With this setup, typing `myapp deploy --environment <TAB>` will complete with `dev`, `staging`, or `prod`.
 
 ## License
 

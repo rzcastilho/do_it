@@ -5,11 +5,11 @@ defmodule DoIt.MainCommand do
 
   defmacro __using__(opts) do
     quote do
-      Module.register_attribute(__MODULE__, :commands, accumulate: true, persist: false)
+      Module.register_attribute(__MODULE__, :commands, accumulate: true, persist: true)
 
       Module.register_attribute(__MODULE__, :command_descriptions,
         accumulate: true,
-        persist: false
+        persist: true
       )
 
       case List.keyfind(unquote(opts), :description, 0) do
@@ -60,6 +60,8 @@ defmodule DoIt.MainCommand do
       end
 
     quote do
+      alias DoIt.Completion
+
       def command(), do: {"#{Application.get_application(__MODULE__)}", @description}
 
       def help() do
@@ -87,6 +89,61 @@ defmodule DoIt.MainCommand do
 
       def main(["version" | _]), do: IO.puts("#{inspect(@version)}")
       def main(["help" | _]), do: help()
+
+      # Completion commands
+      def main(["completion", "bash" | _]) do
+        app_name = "#{Application.get_application(__MODULE__)}"
+        Completion.generate_bash_completion(__MODULE__, app_name) |> IO.puts()
+      end
+
+      def main(["completion", "fish" | _]) do
+        app_name = "#{Application.get_application(__MODULE__)}"
+        Completion.generate_fish_completion(__MODULE__, app_name) |> IO.puts()
+      end
+
+      def main(["completion", "zsh" | _]) do
+        app_name = "#{Application.get_application(__MODULE__)}"
+        Completion.generate_zsh_completion(__MODULE__, app_name) |> IO.puts()
+      end
+
+      def main(["completion", "complete" | args]) do
+        Completion.complete_command(__MODULE__, args)
+        |> Enum.each(&IO.puts/1)
+      end
+
+      def main(["completion", "install", shell | _]) do
+        app_name = "#{Application.get_application(__MODULE__)}"
+        Completion.get_installation_instructions(app_name, shell) |> IO.puts()
+      end
+
+      def main(["completion", "debug" | _]) do
+        Completion.debug_completions(__MODULE__)
+        |> Jason.encode!(pretty: true)
+        |> IO.puts()
+      rescue
+        UndefinedFunctionError ->
+          IO.puts("Debug output requires Jason library. Add {:jason, \"~> 1.4\"} to your deps.")
+      end
+
+      def main(["completion" | _]) do
+        IO.puts("""
+        Usage: #{Application.get_application(__MODULE__)} completion COMMAND
+
+        Shell completion for #{Application.get_application(__MODULE__)}
+
+        Commands:
+          bash                Generate bash completion script
+          fish                Generate fish completion script  
+          zsh                 Generate zsh completion script
+          complete <args>     Internal completion command (used by shell scripts)
+          install <shell>     Show installation instructions for the specified shell
+          debug               Show debug information about available completions
+
+        Examples:
+          #{Application.get_application(__MODULE__)} completion bash > /etc/bash_completion.d/#{Application.get_application(__MODULE__)}
+          #{Application.get_application(__MODULE__)} completion install bash
+        """)
+      end
 
       unquote(commands_ast)
 

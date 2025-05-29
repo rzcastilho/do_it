@@ -29,17 +29,17 @@ defmodule DoIt.Command do
           raise(DoIt.CommandDefinitionError, "description is required for command definition")
       end
 
-      Module.register_attribute(__MODULE__, :subcommands, accumulate: true, persist: false)
+      Module.register_attribute(__MODULE__, :subcommands, accumulate: true, persist: true)
 
       Module.register_attribute(__MODULE__, :subcommand_descriptions,
         accumulate: true,
-        persist: false
+        persist: true
       )
 
-      Module.register_attribute(__MODULE__, :arguments, accumulate: true)
-      Module.register_attribute(__MODULE__, :options, accumulate: true)
-      Module.register_attribute(__MODULE__, :strict, accumulate: true)
-      Module.register_attribute(__MODULE__, :aliases, accumulate: true)
+      Module.register_attribute(__MODULE__, :arguments, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :options, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :strict, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :aliases, accumulate: true, persist: true)
 
       Module.put_attribute(__MODULE__, :options, %Option{
         name: :help,
