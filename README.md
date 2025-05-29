@@ -13,7 +13,7 @@ The package can be installed by adding `do_it` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:do_it, "~> 0.6"}
+    {:do_it, "~> 0.7"}
   ]
 end
 ```

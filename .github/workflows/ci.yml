@@ -3,23 +3,21 @@ on: [pull_request, push]
 jobs:
   mix_test:
     name: mix test (Elixir ${{ matrix.elixir }} OTP ${{ matrix.otp }})
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        elixir: [1.12.3, 1.13.4, 1.14.2]
-        otp: [22.3.4.26, 23.3.4.18, 24.3.4.7, 25.2]
+        elixir: [1.15.8, 1.16.3, 1.17.3, 1.18.1]
+        otp: [25.3, 26.2, 27.1]
         exclude:
-          - elixir: 1.12.3
-            otp: 25.2
-          - elixir: 1.14.2
-            otp: 22.3.4.26
+          - elixir: 1.15.8
+            otp: 27.1
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v2.3.2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
