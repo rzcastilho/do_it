@@ -69,6 +69,11 @@ defmodule DoIt.OutputTest do
              template     Manage HelloWorld Template
              say          Say something!!!
 
+           Built-in commands:
+             completion   Manage shell completion code for the specified shell (bash, zsh or fish)
+             help         Show this help
+             version      Show version information
+
            Run 'hello COMMAND --help' for more information on a command.
 
            """

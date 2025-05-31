@@ -2,40 +2,65 @@ defmodule DoIt.CompletionTest do
   use ExUnit.Case
   alias DoIt.Completion
 
-  describe "parse_completion_context/1" do
+  describe "parse_completion_context/2" do
     test "parses empty args as command completion" do
-      context = Completion.parse_completion_context([])
+      context = Completion.parse_completion_context(DoIt.CompletionTest, [])
       assert context == {:command, []}
     end
 
-    test "parses single command" do
-      context = Completion.parse_completion_context(["say"])
+    test "parses single partial command" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say"])
+      assert context == {:partial_command, "say", []}
+    end
+
+    test "parses completed command with empty current token" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say", ""])
       assert context == {:command, ["say"]}
     end
 
-    test "parses command with subcommand" do
-      context = Completion.parse_completion_context(["config", "set"])
+    test "parses command with partial subcommand" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["config", "set"])
+      assert context == {:partial_command, "set", ["config"]}
+    end
+
+    test "parses command with completed subcommand" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["config", "set", ""])
       assert context == {:command, ["config", "set"]}
     end
 
+    test "parses partial option" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say", "--format"])
+      assert context == {:partial_option, "--format", ["say"]}
+    end
+
+    test "parses partial short option" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say", "-f"])
+      assert context == {:partial_option, "-f", ["say"]}
+    end
+
     test "parses option waiting for value" do
-      context = Completion.parse_completion_context(["say", "--format"])
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say", "--format", ""])
       assert context == {:option_value, "format", ["say"]}
     end
 
-    test "parses short option waiting for value" do
-      context = Completion.parse_completion_context(["say", "-f"])
-      assert context == {:option_value, "f", ["say"]}
-    end
-
     test "parses option with equals value" do
-      context = Completion.parse_completion_context(["say", "--format=json"])
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say", "--format=json", ""])
       assert context == {:command, ["say"]}
     end
 
     test "handles mixed commands and options" do
-      context = Completion.parse_completion_context(["config", "set", "--verbose"])
-      assert context == {:option_value, "verbose", ["config", "set"]}
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["config", "set", "--verbose"])
+      assert context == {:partial_option, "--verbose", ["config", "set"]}
+    end
+
+    test "parses partial command at root level" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["hel"])
+      assert context == {:partial_command, "hel", []}
+    end
+
+    test "parses partial subcommand" do
+      context = Completion.parse_completion_context(DoIt.CompletionTest, ["config", "se"])
+      assert context == {:partial_command, "se", ["config"]}
     end
   end
 
