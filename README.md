@@ -270,7 +270,7 @@ Commands:
 
 ### Built-in Completion Commands
 
-Every DoIt CLI automatically includes completion commands:
+Every Do It CLI automatically includes completion commands:
 
 ```shell
 # Generate completion script for bash
@@ -367,4 +367,4 @@ With this setup, typing `myapp deploy --environment <TAB>` will complete with `d
 
 ## License
 
-DoIt is released under the Apache License 2.0 - see the [LICENSE](LICENSE) file.
+Do It is released under the Apache License 2.0 - see the [LICENSE](LICENSE) file.
