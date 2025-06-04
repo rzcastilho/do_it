@@ -44,12 +44,16 @@ defmodule DoIt.CompletionTest do
     end
 
     test "parses option with equals value" do
-      context = Completion.parse_completion_context(DoIt.CompletionTest, ["say", "--format=json", ""])
+      context =
+        Completion.parse_completion_context(DoIt.CompletionTest, ["say", "--format=json", ""])
+
       assert context == {:command, ["say"]}
     end
 
     test "handles mixed commands and options" do
-      context = Completion.parse_completion_context(DoIt.CompletionTest, ["config", "set", "--verbose"])
+      context =
+        Completion.parse_completion_context(DoIt.CompletionTest, ["config", "set", "--verbose"])
+
       assert context == {:partial_option, "--verbose", ["config", "set"]}
     end
 
@@ -116,7 +120,9 @@ defmodule DoIt.CompletionTest do
   describe "complete_option_value/3" do
     test "returns empty list for invalid command path" do
       # Use a simple module reference that won't cause issues
-      completions = Completion.complete_option_value(DoIt.CompletionTest, "format", ["nonexistent"])
+      completions =
+        Completion.complete_option_value(DoIt.CompletionTest, "format", ["nonexistent"])
+
       assert completions == []
     end
   end

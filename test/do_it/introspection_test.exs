@@ -138,7 +138,8 @@ defmodule DoIt.IntrospectionTest do
     test "returns all options for a command" do
       options = Introspection.get_command_options(IntrospectionTest.User.Create)
 
-      assert length(options) == 3  # help + admin + role
+      # help + admin + role
+      assert length(options) == 3
       option_names = Enum.map(options, & &1.name)
       assert :help in option_names
       assert :admin in option_names
@@ -173,7 +174,8 @@ defmodule DoIt.IntrospectionTest do
 
       assert "--help" in flags
       assert "--default" in flags
-      refute "-d" in flags  # no alias defined
+      # no alias defined
+      refute "-d" in flags
     end
   end
 
@@ -270,10 +272,17 @@ defmodule DoIt.IntrospectionTest do
       module = Introspection.resolve_command_path(IntrospectionTest.MainApp, ["nonexistent"])
       assert module == nil
 
-      module = Introspection.resolve_command_path(IntrospectionTest.MainApp, ["user", "nonexistent"])
+      module =
+        Introspection.resolve_command_path(IntrospectionTest.MainApp, ["user", "nonexistent"])
+
       assert module == nil
 
-      module = Introspection.resolve_command_path(IntrospectionTest.MainApp, ["simple_command", "invalid"])
+      module =
+        Introspection.resolve_command_path(IntrospectionTest.MainApp, [
+          "simple_command",
+          "invalid"
+        ])
+
       assert module == nil
     end
   end
@@ -282,7 +291,8 @@ defmodule DoIt.IntrospectionTest do
     test "returns complete command structure" do
       structure = Introspection.get_command_structure(IntrospectionTest.MainApp)
 
-      assert structure.name == ""  # No application name in test environment
+      # No application name in test environment
+      assert structure.name == ""
       assert structure.description == "Test CLI Application"
       assert structure.module == IntrospectionTest.MainApp
       assert length(structure.commands) == 3
@@ -306,7 +316,8 @@ defmodule DoIt.IntrospectionTest do
       assert simple_command.description == "A simple command with no subcommands"
       assert simple_command.subcommands == []
       assert length(simple_command.arguments) == 1
-      assert length(simple_command.options) == 3  # help + verbose + output
+      # help + verbose + output
+      assert length(simple_command.options) == 3
     end
   end
 

@@ -39,30 +39,30 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
   alias DoIt.Completion
 
   def run(args) do
-    {opts, _, invalid} = OptionParser.parse(args,
-      switches: [
-        shell: :string,
-        output: :string,
-        install: :boolean,
-        main_module: :string,
-        app_name: :string,
-        help: :boolean
-      ],
-      aliases: [
-        s: :shell,
-        o: :output,
-        i: :install,
-        m: :main_module,
-        a: :app_name,
-        h: :help
-      ]
-    )
+    {opts, _, invalid} =
+      OptionParser.parse(args,
+        switches: [
+          shell: :string,
+          output: :string,
+          install: :boolean,
+          main_module: :string,
+          app_name: :string,
+          help: :boolean
+        ],
+        aliases: [
+          s: :shell,
+          o: :output,
+          i: :install,
+          m: :main_module,
+          a: :app_name,
+          h: :help
+        ]
+      )
 
     if opts[:help] do
       print_help()
       :ok
     else
-
       if invalid != [] do
         Mix.shell().error("Invalid options: #{Enum.join(Enum.map(invalid, &elem(&1, 0)), ", ")}")
         print_help()
@@ -70,7 +70,7 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
       end
 
       shell = opts[:shell] || "bash"
-      
+
       unless shell in ["bash", "fish", "zsh"] do
         Mix.shell().error("Unsupported shell: #{shell}. Supported shells: bash, fish, zsh")
         System.halt(1)
@@ -87,7 +87,7 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
   defp generate_completion_script(shell, opts) do
     # Ensure the project is compiled
     Mix.Task.run("compile")
-    
+
     main_module = get_main_module(opts[:main_module])
     app_name = opts[:app_name] || get_app_name()
 
@@ -106,19 +106,22 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
       System.halt(1)
     end
 
-    script = case shell do
-      "bash" -> Completion.generate_bash_completion(main_module, app_name)
-      "fish" -> Completion.generate_fish_completion(main_module, app_name)
-      "zsh" -> Completion.generate_zsh_completion(main_module, app_name)
-    end
+    script =
+      case shell do
+        "bash" -> Completion.generate_bash_completion(main_module, app_name)
+        "fish" -> Completion.generate_fish_completion(main_module, app_name)
+        "zsh" -> Completion.generate_zsh_completion(main_module, app_name)
+      end
 
     if output_file = opts[:output] do
       output_dir = Path.dirname(output_file)
-      
+
       unless File.exists?(output_dir) do
         case Mix.shell().yes?("Directory #{output_dir} does not exist. Create it?") do
-          true -> File.mkdir_p!(output_dir)
-          false -> 
+          true ->
+            File.mkdir_p!(output_dir)
+
+          false ->
             Mix.shell().error("Cannot write to #{output_file}")
             System.halt(1)
         end
@@ -126,11 +129,15 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
 
       File.write!(output_file, script)
       Mix.shell().info("Generated #{shell} completion script: #{output_file}")
-      
+
       if shell == "fish" do
-        Mix.shell().info("Fish completion is now ready to use (restart your shell or run 'exec fish')")
+        Mix.shell().info(
+          "Fish completion is now ready to use (restart your shell or run 'exec fish')"
+        )
       else
-        Mix.shell().info("To enable completion, source this file or add it to your shell's configuration")
+        Mix.shell().info(
+          "To enable completion, source this file or add it to your shell's configuration"
+        )
       end
     else
       IO.puts(script)
@@ -146,9 +153,10 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
   defp get_main_module(nil) do
     # Try to auto-detect main module from escript configuration
     case Mix.Project.config()[:escript] do
-      nil -> 
+      nil ->
         # Try to find modules that use DoIt.MainCommand
         find_main_command_modules() |> List.first()
+
       escript_config ->
         escript_config[:main_module]
     end
@@ -173,10 +181,11 @@ defmodule Mix.Tasks.DoIt.Gen.Completion do
       {:ok, modules} ->
         modules
         |> Enum.filter(fn module ->
-          Code.ensure_loaded?(module) and 
-          function_exported?(module, :command, 0) and
-          function_exported?(module, :main, 1)
+          Code.ensure_loaded?(module) and
+            function_exported?(module, :command, 0) and
+            function_exported?(module, :main, 1)
         end)
+
       _ ->
         []
     end
