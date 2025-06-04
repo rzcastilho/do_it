@@ -167,6 +167,16 @@ defmodule DoIt.Output do
     end
 
     IO.puts("")
+    IO.puts("Built-in commands:")
+
+    IO.puts(
+      "  #{String.pad_trailing("completion", align)}   Manage shell completion code for the specified shell (bash, zsh or fish)"
+    )
+
+    IO.puts("  #{String.pad_trailing("help", align)}     Show this help")
+    IO.puts("  #{String.pad_trailing("version", align)}     Show version information")
+
+    IO.puts("")
 
     IO.puts("Run '#{app} COMMAND --help' for more information on a command.")
     IO.puts("")
@@ -179,7 +189,7 @@ defmodule DoIt.Output do
       ) do
     commands_stringify =
       commands
-      |> Enum.map(& &1.command)
+      |> Enum.map(& &1.command())
       |> Enum.map_join(" ", &elem(&1, 0))
 
     IO.puts("")
@@ -211,7 +221,7 @@ defmodule DoIt.Output do
       ) do
     commands_stringify =
       commands
-      |> Enum.map(& &1.command)
+      |> Enum.map(& &1.command())
       |> Enum.map_join(" ", &elem(&1, 0))
 
     IO.puts("")
